@@ -1,5 +1,9 @@
 // based off https://www.jbmballistics.com/ballistics/downloads/binary/jbmcgi-2.1.tgz
 
+function Trajectory
+
+
+
 const
 	GM		= (-32.17),
 	GM7k		= GM*7e3
@@ -59,15 +63,14 @@ velocity = ({atmos,bullet,chronodist,velocity}) => {
 	if (chronodist > MINCHRONO){
 		const
 			dx = -chronodist/NSTEPS,
-			eq = dx*atmos.density/ATMOS_DENSSTD;
+			eq = dx*atmos.density/STD.D;
 			
 		for (let i=0; i<NSTEPS && v<MAXV; i++){
 			const
-				vm = v/atmos.mach,
-				tv = v - 0.5*eq*v* bullet.drag(vm),
-				m = tv/atmos.mach;
+				tv = v - 0.5*eq*v* bullet.drag(v/atmos.M),
+				m = tv/atmos.M;
 			
-			v = v - eq*tv* bullet.drag(m);
+			v -= eq*tv* bullet.drag(m);
 		}
 	}
 	return v;
@@ -76,15 +79,26 @@ velocity = ({atmos,bullet,chronodist,velocity}) => {
 dragFunction = ({G,bc}) => (dragModel => M => dragModel(M)/bc)(dragModels[G]),
 
 
-calculate({zero,speed,angle,tilt,azimuth,elevation,atmos,range,sight,bullet,options})
-{
+trajectory = ({
+	zero,
+	speed,
+	angle,
+	tilt,
+	azimuth,
+	elevation,
+	atmos,
+	range,
+	sight,
+	bullet,
+	options
+}) => {
+	
 	bullet.drag = dragFunction(bullet);
 	
 	const
 		z	= xyz(zero.x*DX, INTOFT(zero.y), INTOFT(zero.z)),
 		azim	= (options & OPT.AZIM) ? 0.0 : azimuth,
 		elev	= (options & OPT.ELEV)) ? 0.0 : elevation,
-		mach	= atmos.mach,
 		eq	= atmos.density/STD.D,
 		g	= gravity(tilt),
 		w	= wind(trajectory),
@@ -96,7 +110,7 @@ calculate({zero,speed,angle,tilt,azimuth,elevation,atmos,range,sight,bullet,opti
 
 		 
 
-		if ( options & OPT_ALTI ) atmos_standardalt(atmos);
+		if ( options & OPT.ALTI ) atmos_standardalt(atmos);
 		atmos_atmos(atmos);
 
 
@@ -113,7 +127,7 @@ calculate({zero,speed,angle,tilt,azimuth,elevation,atmos,range,sight,bullet,opti
 		vm = mv;
 		t = 0.0;
 		r = xyz(0.0, -sight.height, -sight.offset);
-		v = scale(vm, xyz(cos(elev)*cos(azim), sin(elev), cos(elev)*sin(azim)));
+		v = scale(vm, xyz( cos(elev)*cos(azim), sin(elev), cos(elev)*sin(azim)));
 
 		j = 0;
 		k = MAX(range.max, z.x);
@@ -135,13 +149,13 @@ calculate({zero,speed,angle,tilt,azimuth,elevation,atmos,range,sight,bullet,opti
 			dt  = 0.5*DX/v.x;
 			tv  = sub(v, w);
 			vm  = len(tv);
-			drg = eq*vm * bullet.drag(vm/mach);
+			drg = eq*vm * bullet.drag(vm/atmos.mach);
 			tv  = sub(v, scale(dt, sub(scale(drg, tv), g)));
 
 			dt  = DX/tv.x;
 			tv  = sub(tv, w);
 			vm  = len(tv);
-			drg = eq*vm * bullet.drag(vm/mach);
+			drg = eq*vm * bullet.drag(vm/atmos.mach);
 			v   = sub(v, scale(dt, sub(scale(drg, tv), g)));
 
 			dr  = xyz(DX, v.y*dt, v.z*dt);
