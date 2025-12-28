@@ -1,8 +1,14 @@
-const
- vector = (x,y,z) => ({x,y,z}),
- vscale = (k,v) => ({x:k*v.x, y:k*v.y, z: k*v.z}),
- vdot = (u,v) => ({x:u.x*v.x, y:u.y*v.y, z:u.z*v.z}),
- vmod = v => vdot(v,v);
+const 
+	xyz	= (x,y,z) => ({x,y,z}),
+	scale	= (k,v) => xyz( k*v.x, k*v.y, k*v.z ),
+	dot	= (u,v) => u.x*v.x + u.y*v.y u.z*v.z,
+	mod	= v => dot(v,v),
+	len	= v => Math.sqrt(mod(v)),
+	add	= (u,v) => xyz(u.x+v.x, u.y+v.y, u.z+v.z),
+	sub	= (u,v) => xyz(u.x-v.x, u.y-v.y, u.z-v.z),
+	product = (u,v) => xyz( u.y*v.z-u.z*v.y, u.x*v.z-u.z*v.x, u.x*v.y-u.y*v.x );
+	
+
 
 /*
 #define MULTIPLY(a, v)   (vector((a)*(v.x), (a)*(v.y), (a)*(v.z)))
