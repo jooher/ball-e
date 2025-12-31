@@ -35,18 +35,11 @@ tilt = ({
 
 
 export default ({
-//
-	sight,	// :{height,offset},
-	aim,		// :{los,cant},
+	sight,	// :{height,offset,los,cant},
 	bullet,	// :{drag,weight,vm},
-	
-	range = {min:100, max:4000, inc:100},
 	atmos,	// :{kD,M}
 	wind,
-//
-	zero = {x:1000,y:10,z:0},
-	speed,
-	angle
+	range = {zero:300,min:100, max:4000, inc:100 },	
 }) => {
 	
 // output	
@@ -54,11 +47,11 @@ export default ({
 //	azimuth, // The angle in a horizontal direction, positive to the shooter's right
 	
 	const
-		adjust	= tilt(aim),
+		adjust= tilt(sight),
 		G	= adjust(GRAVITY),
-		W	= wind && adjust(wind),
+		W	= wind && adjust(wind);
 		
-		lead	= speed*Math.sin(angle);
+		//lead	= speed*Math.sin(angle);
 
 	let	trace,
 		error		= 1e9,
@@ -93,11 +86,11 @@ export default ({
 			R.app(V,dt*damp);
 			t += dt*damp;
 			
-			if(R.x>zero.x && error>ERROR){ // Adjust trajectory for zero elevation and azimuth...
+			if(R.x>range.zero && error>ERROR){ // Adjust trajectory for zero elevation and azimuth...
 
 				const 
-					dy = R.y-zero.y,
-					dz = R.z-zero.z;
+					dy = R.y,
+					dz = R.z;
 					
 				error = dy*dy + dz*dz;
 					
@@ -120,5 +113,5 @@ export default ({
 			}
 		}
 	}
-	return { trace, elevation, azimuth, error };
+	return trace;
 }

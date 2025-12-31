@@ -14,61 +14,43 @@
 
 
 
-<form id=shot >
+<form id=shot>
 
-	<h2>Sight</h2>
 	<section name=sight>
-		height
-		<input type=number name=height value=2 />
-		offset
-		<input type=number name=offset value=0 />
+		<h2>Sight</h2>
+		<label>height<input type=number name=height value=2 /></label>
+		<label>offset<input type=number name=offset value=0 /></label>
+		<label>los<input type=number name=los value=0 /></label>
+		<label>cant<input type=number name=cant value=0 /></label>
 	</section>
 
-	<h2>Aim</h2>
-	<section name=aim>
-		<input type=number name=los value=0 />
-		<input type=number name=cant value=0 />
-	</section>
-
-	<h2>Bullet</h2>
 	<section name=bullet>
-		Weight
-		<input type=number name=weight value=30 />
-		Muzzle speed
-		<input type=range name=vm value=3000 min=1000 max=6000 step=500 />
-		Ballistic coef
-		<input type=range name=bc value=0.5 min=0.1 max=2 />
-		Ballistic model
-		<input type=text name=G value="G7" />
+		<h2>Bullet</h2>
+		<label>Weight, gr<input type=number name=weight value=30 min=5 max=100 /></label>
+		<label>Vmuzzle, fps<input type=number name=vm value=3500 min=1000 max=6000 step=500 /></label>
+		<label>BC<input type=number name=bc value=0.5 min=0.1 max=2 step=0.1 /></label>
+		<label>Drag functon<input type=text name=G value="G7" /></label>
 	</section>
 
-	<h2>Zero</h2>
-	<section name=zero>
-		Range
-		<input type=range name=x value=3000 min=300 max=6000 step=100 />	
-	</section>
-
-	<h2>Target</h2>
-	<section name=target>
-		Range
-		<input type=range name=x value=3000 min=300 max=6000 step=100 />	
-	</section>
-
-	<h2>Atmosphere</h2>
 	<section name=atmos>
-		Altitude, ft
-		<input type=range name=ft value=1000 min=0 max=30000 step=500 />
-		Temperature, F
-		<input type=range name=F value=60 min=0 max=100 step=1 />
-		Pressure, inHg
-		<input type=range name=inHg value=30 min=25 max=50 step=1 />
-		Humidity, %
-		<input type=range name=pc value=50 min=0 max=100 step=1 />
+		<h2>Atmosphere</h2>
+		<label>Altitude, ft<input type=number name=ft value=1000 min=0 max=30000 step=500 /></label>
+		<label>Temperature, F<input type=number name=F value=60 min=0 max=100 step=1 /></label>
+		<label>Pressure, inHg<input type=number name=inHg value=30 min=25 max=50 step=1 /></label>
+		<label>Humidity, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
 	</section>
 	
-	<input type=submit>Calculate</input>
+	<section name=range>
+		<h2>Range</h2>
+		<label>Zero<input type=number name=zero value=300 min=100 max=6000 step=100 /></label>
+		<label>Min<input type=number name=min value=300 min=100 max=6000 step=100 /></label>
+		<label>Max<input type=number name=max value=4000 min=100 max=6000 step=100 /></label>
+		<label>Inc<input type=number name=inc value=100 min=10 max=1000 step=10 /></label>
+	</section>
 
 </section>
+
+	<button id=calc />Calculate!</button>
 
 <script type=module src="ball-e.js"></script>
 
