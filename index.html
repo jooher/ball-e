@@ -1,14 +1,14 @@
 <!DOCTYPE HTML>
-<form>
-zero,
-speed,
-angle,
-tilt,
-azimuth,
-elevation,
 
-atmos,
-range,
-sight,
-bullet,
-options
+<head>
+	<title>Ball-E</title>
+	<style>
+	 .trajectory{stroke:red;}
+	</style>
+</head>
+
+<svg viewBox="0 -500 4000 500">
+	<polyline id=traj class=trajectory/>
+</svg>
+
+<script type=module src="ball-e.js"></script>

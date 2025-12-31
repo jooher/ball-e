@@ -1,4 +1,4 @@
-export default {
+const dragModels = {
 	
 	G1	:M=> 
 		(M > 2.0)	?	0.9482590 + M*(-0.248367 + M*0.0344343) :
@@ -39,7 +39,7 @@ export default {
 
 	G8	:M => 
 		(M > 1.1)	?	0.639096 + M*(-0.197471 + M*0.0216221) :
-		(M > 0.925)	?	-12.9053 + M*(24.9181 - M*11.6191);
+		(M > 0.925)	?	-12.9053 + M*(24.9181 - M*11.6191) :
 					0.210589 + M*(-0.00184895 + M*0.00211107),
 					
 	Gl	:M => 
@@ -52,4 +52,11 @@ export default {
 		(M > 1.2)	?	0.630556 + M*0.00701308 :
 		(M >= 0.7)	?	0.531976 + M*(-1.28079 + M*1.17628) :
 					0.2282
+};
+
+export function Bullet({ G="G7", bc=1, weight, vm }){
+	const drag = dragModels[G] || dragModels.G7;
+	this.drag = M => drag(M)/bc;
+	this.weight = weight;
+	this.vm = vm;
 }
