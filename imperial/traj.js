@@ -3,7 +3,7 @@
 import {xyz,len,add,sub} from '../xyz.js';
 
 const
-	g		= (32.17),
+	g		= (32.17), //
 	GRAVITY	= xyz(0,-g,0),
 	
 	ERR	= (0.02/12.0), // ft?
@@ -82,7 +82,7 @@ export default ({
 			const
 				dt	= dx/V.x,
 				va	= len( wind ? sub(V,W) : V ), // air velocity
-				drag	= atmos.kD * bullet.drag(va/atmos.M)*dt,
+				drag	= atmos.kD * bullet.drag(va/atmos.M)*dt, // * caliber^2 / weight
 				damp	= 1/(1-drag); // to have R.x rounded, let's expand V slightly
 			
 			V.app(V,-drag).app(G,dt);

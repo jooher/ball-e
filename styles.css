@@ -13,7 +13,7 @@ form>section>label {
     margin:.5em
 }
 
-label>input{
+label>input, label>select{
     width:100%;
 }
 
@@ -32,11 +32,12 @@ form>section {
 }
 
 #result{
-	position:absolute;
-	margin-top:-2em;
+	/* position:absolute; */
+	/* margin-top:-2em; */
+	margin: .5em;
 }
 
 #result>label{
 	display:inline-block;
-	margin: 0 1em;
+	margin-right: 1em;
 }

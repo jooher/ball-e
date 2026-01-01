@@ -1,0 +1,16 @@
+polyline {
+	stroke: rgba(0,0,0,.25);
+	stroke-width: .01px;
+}
+
+#G1{
+	stroke:green;
+}
+
+#G7{
+	stroke:blue
+}
+
+#G7a{
+	stroke:magenta
+}

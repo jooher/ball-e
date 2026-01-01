@@ -1,0 +1,39 @@
+<!doctype html>
+
+<head>
+	<title>Ball-E</title>
+	<link rel="stylesheet" href="gs.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+</head>
+
+<svg viewBox="0 0 4 4" transform="scale(1,-1)" height=400 width=800 >
+
+	<polyline fill=none points="0,0 4,0" />
+	<polyline fill=none points="1,0 1,4" />
+	
+</svg>
+
+<script type=module >
+
+import G from './G-funcs.js';
+
+function* range(fn) {
+  for(let m=0.1; m < 4.0; m +=.02)
+	yield m.toFixed(3)+','+(4*fn(m)).toFixed(3); //`${m},${4*fn(m)}`;
+}
+
+const	svg = document.getElementsByTagName('svg')[0],
+	plot = document.getElementsByTagName('polyline')[0];
+
+svg.append(
+	...Object.keys(G).map( i => {
+		const p = plot.cloneNode(true);
+		p.id = i;
+		p.setAttribute('title',i);
+		p.setAttribute('points', [...range(G[i])].join(' '));
+		return p;
+	})
+);
+
+
+</script>

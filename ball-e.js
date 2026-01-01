@@ -18,7 +18,8 @@ inputs = {
 	},
 	
 	bullet:{ // 
-		weight: 30,
+		// weight: 175,
+		// caliber: .308,
 		vm	: 3500,
 		bc	: 0.5,
 		G	:"G7",

@@ -1,15 +1,15 @@
-<!DOCTYPE HTML>
+<!doctype html>
 
 <head>
 	<title>Ball-E</title>
 	<link rel="stylesheet" href="styles.css" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 </head>
 
 
 <body>
 
-<svg viewBox="0 -100 400 200" transform="scale(1,-1)" height=400 width=100% >
+<svg viewBox="0 -50 400 200" transform="scale(1,-1)" height=250 width=400% >
 
 
 	<polyline points="0,0 400,0" stroke=white fill=none />
@@ -40,17 +40,18 @@
 
 	<section name=sight>
 		<h2>Sight</h2>
-		<label>height<input type=number name=height value=2 step=0.1 /></label>
-		<label>offset<input type=number name=offset value=0 step=0.1  /></label>
-		<label>los<input type=number name=los value=0 step=0.01  /></label>
-		<label>cant<input type=number name=cant value=0 step=0.01  /></label>
+		<label>Height, ft<input type=number name=height value=0.2 /></label>
+		<label>LOS, rad<input type=number name=los value=0 step=0.01  /></label>
+		<label>Zero, ft<input type=number name=zero value=300 min=100 max=6000 step=10 /></label>
+		<label>Target, ft<input type=number name=target value=3000 min=100 max=6000 step=10 /></label>
+<!--
+		<label>Offset, ft<input type=number name=offset value=0 step=0.1  /></label>
+		<label>Cant, rad<input type=number name=cant value=0 step=0.01  /></label>
+-->
 	</section>
 
 	<section name=bullet>
 		<h2>Bullet</h2>
-		<label>Weight, gr<input type=number name=weight value=30 min=5 max=1000 /></label>
-		<label>Vmuzzle, fps<input type=number name=vm value=3500 min=1000 max=6000 /></label>
-		<label>BC<input type=number name=bc value=0.5 min=0.1 max=2.0 step=0.01 /></label>
 		<label>Drag functon<select name=G value="G7" />
 			<option>G1
 			<option>G2
@@ -62,6 +63,14 @@
 			<option>Gl
 			<option>Gi
 		</select></label>
+		<label>BC<input type=number name=bc value=0.247 min=0.010 max=2.00 step=0.001 /></label>
+		<label>Vmuzzle, fps<input type=number name=vm value=3500 min=1000 max=6000 /></label>
+		<label>Drift<input type=number name=drift value=3500 min=1000 max=6000 /></label>
+<!--
+		<br />
+		<label>Weight, gr<input type=number name=weight value=30 min=5 max=1000 /></label>
+		<label>Caliber, in<input type=number name=caliber value=.308 /></label>
+-->
 	</section>
 
 	<section name=atmos>
@@ -70,14 +79,6 @@
 		<label>Temperature, F<input type=number name=F value=60 min=0 max=100 step=1 /></label>
 		<label>Pressure, inHg<input type=number name=inHg value=30 min=25 max=50 step=1 /></label>
 		<label>Humidity, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
-	</section>
-	
-	<section name=range>
-		<h2>Range</h2>
-		<label>Min<input type=number name=min value=0 min=0 max=6000 step=10 /></label>
-		<label>Inc<input type=number name=inc value=100 min=10 max=1000 step=10 /></label>
-		<label>Zero<input type=number name=zero value=300 min=100 max=6000 step=10 /></label>
-		<label>Target<input type=number name=target value=3000 min=100 max=6000 step=10 /></label>
 	</section>
 
 	<input type=submit value=Calculate! />
