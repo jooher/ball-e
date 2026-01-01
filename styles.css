@@ -2,6 +2,10 @@ svg{background:wheat}
 .trajectory{stroke:red;fill: none;}
 input{display:block; }
 
+html{
+    font-family:sans-serif;
+}
+
 form>section>label {
     width: 4em;
     display: inline-block;
@@ -28,5 +32,11 @@ form>section {
 }
 
 #result{
+	position:absolute;
 	margin-top:-2em;
+}
+
+#result>label{
+	display:inline-block;
+	margin: 0 1em;
 }
