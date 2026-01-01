@@ -26,3 +26,7 @@ form>section {
     border: 1px solid lightgray;
     margin: .2em;
 }
+
+#result{
+	margin-top:-2em;
+}

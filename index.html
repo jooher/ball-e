@@ -11,6 +11,7 @@
 
 <svg viewBox="0 -100 400 200" transform="scale(1,-1)" height=400 width=100% >
 
+
 	<polyline points="0,0 400,0" stroke=white fill=none />
 	<path d="M100,-10 L100,10 M200,-20 L200,20 M300,-30 L300,30"  stroke=white fill=none />
 
@@ -25,27 +26,31 @@
 	<polyline id=trajectory class=trajectory />
 </svg>
 
+<div id=result>
+	<label>Elevation: <b id="elevation">--</b></label>, <label>Azimuth: <b id="azimuth">--</b></label>
+</div>
+
 <!--
 <svg viewbox="-100 -100 200 200" transform="scale(1,-1)" height=400 width=400 >
 	<cirle cx=0 cy=0 r=100 stroke=black fill=none />
 </svg>
 -->
 
-<form id=shot action="javascript:calculate()">
+<form id=shot action="javascript:calculate()" novalidate>
 
 	<section name=sight>
 		<h2>Sight</h2>
-		<label>height<input type=number name=height value=2 /></label>
-		<label>offset<input type=number name=offset value=0 /></label>
-		<label>los<input type=number name=los value=0 /></label>
-		<label>cant<input type=number name=cant value=0 /></label>
+		<label>height<input type=number name=height value=2 step=0.1 /></label>
+		<label>offset<input type=number name=offset value=0 step=0.1  /></label>
+		<label>los<input type=number name=los value=0 step=0.01  /></label>
+		<label>cant<input type=number name=cant value=0 step=0.01  /></label>
 	</section>
 
 	<section name=bullet>
 		<h2>Bullet</h2>
 		<label>Weight, gr<input type=number name=weight value=30 min=5 max=1000 /></label>
 		<label>Vmuzzle, fps<input type=number name=vm value=3500 min=1000 max=6000 /></label>
-		<label>BC<input type=number name=bc value=0.5 min=0.1 max=2 step=0.1 /></label>
+		<label>BC<input type=number name=bc value=0.5 min=0.1 max=2.0 step=0.01 /></label>
 		<label>Drag functon<select name=G value="G7" />
 			<option>G1
 			<option>G2
@@ -76,7 +81,6 @@
 	</section>
 
 	<input type=submit value=Calculate! />
-	<label>Elevation: <b id="elevation">--</b></label>, <label>Azimuth: <b id="azimuth">--</b></label>
 
 </form>
 
