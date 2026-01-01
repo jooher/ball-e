@@ -16,3 +16,13 @@ label>input{
 input[type=number]{
     text-align:right
 }
+
+section>h2 {
+    font: italic 1em sans-serif;
+    color: gray;
+    margin: .5em;
+}
+form>section {
+    border: 1px solid lightgray;
+    margin: .2em;
+}

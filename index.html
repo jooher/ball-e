@@ -9,12 +9,28 @@
 <body>
 
 <svg viewBox="0 -100 400 200" transform="scale(1,-1)" height=400 width=100% >
+
+	<polyline points="0,0 400,0" stroke=white fill=none />
+	<path d="M100,-10 L100,10 M200,-20 L200,20 M300,-30 L300,30"  stroke=white fill=none />
+
+	<g id=zero >
+		<path d="M0,1 L0,10 M0,-1 L0,-10 M-1,0 L-10,0 M1,0 L10,0" fill=none stroke=blue />
+	</g>
+	
+	<g id=target >
+		<polyline points="-6,0 0,10 6,0 0,-10 -6,0" stroke=none fill=blue />
+	</g>
+	
 	<polyline id=trajectory class=trajectory />
 </svg>
 
+<!--
+<svg viewbox="-100 -100 200 200" transform="scale(1,-1)" height=400 width=400 >
+	<cirle cx=0 cy=0 r=100 stroke=black fill=none />
+</svg>
+-->
 
-
-<form id=shot>
+<form id=shot action="javascript:calculate()">
 
 	<section name=sight>
 		<h2>Sight</h2>
@@ -29,7 +45,17 @@
 		<label>Weight, gr<input type=number name=weight value=30 min=5 max=100 /></label>
 		<label>Vmuzzle, fps<input type=number name=vm value=3500 min=1000 max=6000 step=500 /></label>
 		<label>BC<input type=number name=bc value=0.5 min=0.1 max=2 step=0.1 /></label>
-		<label>Drag functon<input type=text name=G value="G7" /></label>
+		<label>Drag functon<select name=G value="G7" />
+			<option>G1
+			<option>G2
+			<option>G4
+			<option>G5
+			<option>G6
+			<option selected>G7
+			<option>G8
+			<option>Gl
+			<option>Gi
+		</select></label>
 	</section>
 
 	<section name=atmos>
@@ -42,15 +68,21 @@
 	
 	<section name=range>
 		<h2>Range</h2>
-		<label>Zero<input type=number name=zero value=300 min=100 max=6000 step=100 /></label>
-		<label>Min<input type=number name=min value=300 min=100 max=6000 step=100 /></label>
-		<label>Max<input type=number name=max value=4000 min=100 max=6000 step=100 /></label>
+		<label>Min<input type=number name=min value=0 min=0 max=6000 step=100 /></label>
 		<label>Inc<input type=number name=inc value=100 min=10 max=1000 step=10 /></label>
+		<label>Zero<input type=number name=zero value=300 min=100 max=6000 step=100 /></label>
+		<label>Target<input type=number name=target value=3000 min=100 max=6000 step=100 /></label>
 	</section>
 
-</section>
+	<input type=submit value=Calculate! />
+	<label>Elevation: <b id="elevation">--</b></label>, <label>Azimuth: <b id="azimuth">--</b></label>
 
-	<button id=calc />Calculate!</button>
+</form>
+
+<!--
+<button id=calc />Calculate!</button>
+<label>Elevation: <b id="elevation">--</b></label>, <label>Azimuth: <b id="azimuth">--</b></label>
+-->
 
 <script type=module src="ball-e.js"></script>
 

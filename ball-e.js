@@ -4,143 +4,74 @@ import {Bullet} from './imperial/bullet.js';
 import trajectory from './imperial/traj.js';
 
 
-
 const
 
-/*
-shot ={
+el = id => document.getElementById(id),
+
+inputs = {
+	
 	sight:{
 		height: 2,
-		offset: 0
-	},
-	
-	aim	:{
+		offset: 0,
 		los: 0,
 		cant: 0
 	},
 	
-	bullet:new Bullet({ // 
+	bullet:{ // 
 		weight: 30,
 		vm	: 3500,
 		bc	: 0.5,
 		G	:"G7",
-	}),	// :{drag}
+	},	// :{drag}
 	
-	atmos	:new Atmos({ // 
+	atmos	:{ // 
 		ft	: 1000,
 		F	: 60,
 		inHg	: 30,
 		pc	: 50
-	}),	// :{kD,M}
+	},	// :{kD,M}
 	
-	wind	:null,
+//	wind	:null,
 //
-	zero	:{
-		x:300,
-		y:0,
-		z:0
-	},
-	
-	target:{
-		range	: 1000, //ft
-		speed	: 0,
-		angle	: 0
+	range :{
+		min: 100,
+		inc: 100,
+		zero:300,
+		target:2000
 	}
 },
-*/
 
-	f = document.getElementById("shot"),
-	
-	read = input => input && (input.type === 'number' ? parseFloat(input.value) : input.value),
-			
-	scan = o => Object.fromEntries( Object.keys(o).map( key => [ key, typeof o[key] === 'object' ? scan(o[key]) : read(f.querySelector(`input[name=${key}]`)) ] ) );
-	
-	const
-	
-	inputs = {
-		
-		sight:{
-			height: 2,
-			offset: 0,
-			los: 0,
-			cant: 0
-		},
-		
-		bullet:{ // 
-			weight: 30,
-			vm	: 3500,
-			bc	: 0.5,
-			G	:"G7",
-		},	// :{drag}
-		
-		atmos	:{ // 
-			ft	: 1000,
-			F	: 60,
-			inHg	: 30,
-			pc	: 50
-		},	// :{kD,M}
-		
-	//	wind	:null,
-	//
-		range :{
-			min: 100,
-			max: 3000,
-			inc: 100,
-			zero:300
-		}
-	},
-	
-	test = {
-		
-		sight:{
-			height: 2,
-			offset: 0,
-			los: 0,
-			cant: 0
-		},
-		
-		bullet:new Bullet({ // 
-			weight: 30,
-			vm	: 3500,
-			bc	: 0.5,
-			G	:"G7",
-		}),	// :{drag}
-		
-		atmos	:new Atmos({ // 
-			ft	: 1000,
-			F	: 60,
-			inHg	: 30,
-			pc	: 50
-		}),	// :{kD,M}
-		
-	//	wind	:null,
-	//
-	
-		range :{
-			min: 100,
-			max: 4000,
-			inc: 100,
-			zero:300
-		}
-		
-	};
-	
+f = el("shot"),
+zero = el("zero"),
+target = el("target"),
 
+pos = (el,{x,y}) => el.setAttribute('transform',`translate(${x} ${y})`),
+
+read = input => input && (input.type === 'number' ? parseFloat(input.value) : input.value),
+scan = (f,o) => Object.fromEntries( Object.keys(o).map( key => [ key, typeof o[key] === 'object' ? scan(f,o[key]) : read(f.querySelector(`input[name=${key}]`)) ] ) ),
+
+MOA = Math.PI/(180*60),
+click = 0.25*MOA,
+rad2clicks = r => Math.round(r/click);
 	
 	
-document.getElementById("calc").addEventListener('click', e => {
+window.calculate = e => {
 	
-	e.preventDefault();
+	//e.preventDefault();
 	
-	let shot = scan(inputs);
+	const shot = scan(f,inputs);
 	
 	shot.bullet = new Bullet(shot.bullet);
 	shot.atmos = new Atmos(shot.atmos);
 	
-	const trace = trajectory(shot);
-	console.log(trace);
-	document.getElementById("trajectory").setAttribute("points",trace.map( ({range,drop}) => `${Math.round(range/10)},${Math.round(drop*10)}` ).join(" "));
-})
-
+	pos(zero,{x:shot.range.zero/10,y:0});
+	pos(target,{x:shot.range.target/10,y:0});
 	
-
+	const traj = trajectory(shot);
+	el("trajectory").setAttribute("points",traj.trace.map( ({range,drop}) => `${Math.round(range/10)},${Math.round(drop*10)}` ).join(" "));
+	
+	el("elevation").textContent = rad2clicks(traj.knob.elevation);
+	el("azimuth").textContent = rad2clicks(traj.knob.azimuth);
+};	
+	
+// el("calc").addEventListener('click', calculate);
