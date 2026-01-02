@@ -1,23 +1,23 @@
 // based off https://www.jbmballistics.com/ballistics/downloads/binary/jbmcgi-2.1.tgz
 
-import {xyz,len,add,sub} from './xyz.js';
+import {xyz,len,add,sub} from '../xyz.js';
 
 const
-	g		= 9.8, /* m/s2 */ //(32.17),
-	GRAVITY	= xyz(0,-g,0),
+	g	= 9.81, // m/s2
 	
-	ERROR	= .05, // (0.02/12.0), // ft?
-	MAXIT	= (10),
+	ERR	= .05, // cm
+	ERROR = ERR*ERR,
+	MAXIT	= 10,
 	
-	MINVX	= 100, // (50.0),
-	MINY	= -100, //(-2000/12.0),
+	MINVX	= 100, // m/s
+	MINY	= -100, // m
 
-	dx = 1,
+	dx = 1, // m,
 	
 
 tilt = ({
-	los, // The angle between the line of sight and level ground. Positive shooting uphill, negative downhill
-	cant // The angle of the tilt of the firearm to the right or left from vertical. Positive to the right
+	los = 0, // The angle between the line of sight and level ground. Positive shooting uphill, negative downhill
+	cant = 0 // The angle of the tilt of the firearm to the right or left from vertical. Positive to the right
 	}) => {
 	const
 		cl = Math.cos(los),
@@ -33,40 +33,31 @@ tilt = ({
 
 
 export default ({
-//
-	sight,	// :{height,offset},
-	aim,		// :{los,cant},
+	sight,	// :{height,los,zero,dist},
 	bullet,	// :{drag,weight,vm},
-	
-	range = {min:100, max:1000, inc:10},
 	atmos,	// :{kD,M}
 	wind,
-//
-	zero = {x:100,y:5,z:0},
-	speed,
-	angle
+	range = {min:0, inc:20 },
+	aim: {azimuth = 0, elevation = 0}
 }) => {
 	
-// output	
-//	elevation, //The vertical angle the barrel makes with the line of sight
-//	azimuth, // The angle in a horizontal direction, positive to the shooter's right
-	
-	const
-		adjust	= tilt(aim),
-		G	= adjust(GRAVITY),
-		W	= wind && adjust(wind),
+	const	// rotate gravity and wind into the sight space
+		rot	= tilt(sight),
+		G	= rot(xyz(0,-g,0)),
+		W	= wind && rot(wind);
 		
-		lead	= speed*Math.sin(angle);
+		//lead	= speed*Math.sin(angle);
 
 	let	trace,
+		knob,
 		error		= 1e9,
-		azimuth	= 0, //(options & OPT.AZIM) ? 0.0 : azimuth, 
-		elevation	= 0, //(options & OPT.ELEV)) ? 0.0 : elevation,
+		reach = Math.max(sight.zero, sight.dist),
 		i = MAXIT;
 	  
 	while( i-- && error>ERROR ){
 		
 		trace = [];
+		knob = null;
 		
 		const
 			R = xyz( 0, -sight.height, -sight.offset ),
@@ -79,33 +70,21 @@ export default ({
 		let	t = 0,
 			mark = range.min;
 		
-		while (R.x<range.max && R.y>MINY && V.x>MINVX){
+		while (R.x<reach && R.y>MINY && V.x>MINVX){
 			
 			const
 				dt	= dx/V.x,
 				va	= len( wind ? sub(V,W) : V ), // air velocity
-				drag	= atmos.kD * bullet.drag(va/atmos.M)*dt,
+				drag	= atmos.kD * bullet.drag(va/atmos.M)*dt, // * caliber^2 / weight
 				damp	= 1/(1-drag); // to have R.x rounded, let's expand V slightly
 			
 			V.app(V,-drag).app(G,dt);
 			R.app(V,dt*damp);
 			t += dt*damp;
 			
-			if(R.x>zero.x && error>ERROR){ // Adjust trajectory for zero elevation and azimuth...
-
-				const 
-					dy = R.y-zero.y,
-					dz = R.z-zero.z;
-					
-				error = dy*dy + dz*dz;
-					
-				if (error>ERROR){
-					elevation -= dy/R.x;
-					azimuth -= dz/R.x;
-					break;
-				}
-			}
-			
+			if(R.x >= sight.zero && !knob)
+				knob = { elevation:R.y/R.x, azimuth:R.z/R.x }
+						
 			if ( R.x >= mark ){
 				trace.push({
 					range    : R.x,
@@ -114,9 +93,18 @@ export default ({
 					time     : t,
 					velocity : va,
 				});
-				mark += range.inc;
+				mark += range.inc||10;
 			}
 		}
+		const 
+			dy = R.y,
+			dz = R.z;
+			
+		error = dy*dy + dz*dz;
+		
+		elevation -= .75 * dy/R.x;
+		azimuth -= .75 * dz/R.x;
+		
 	}
-	return { trace, elevation, azimuth, error };
+	return { trace, knob, error };
 }

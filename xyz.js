@@ -22,7 +22,7 @@ class XYZ {
 }
 
 export const 
-	xyz	= (x,y,z) => new XYZ(x,y,z),
+	xyz	= (x,y,z) => new XYZ(x||0,y||0,z||0),
 	scale	= (k,v) => xyz( k*v.x, k*v.y, k*v.z ),
 	dot	= (u,v) => u.x*v.x + u.y*v.y + u.z*v.z,
 	mod	= v => dot(v,v),

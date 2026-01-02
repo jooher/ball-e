@@ -1,0 +1,41 @@
+<!doctype html>
+
+<head>
+	<title>Approximation</title>
+	<link rel="stylesheet" href="-gs.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+</head>
+
+<svg viewBox="0 0 100 100" transform="scale(1,-1)" height=400 width=400 >
+
+	<polyline id=orig fill=none stroke=gray />
+	<polyline id=aprx fill=none stroke=blue />
+	
+</svg>
+
+<script type=module >
+
+import {PLOT,ORIG,APRX,bounds} from './vapm.js';
+
+function* rangefn(fn,{a,b,d}) {
+  for(let m=a; m < b; m +=d)
+	yield m.toFixed(3)+','+fn(m).toFixed(3); //`${m},${4*fn(m)}`;
+}
+
+
+orig.setAttribute('points', PLOT || [...rangefn(ORIG,bounds)].join(' '));
+aprx.setAttribute('points', [...rangefn(APRX,bounds)].join(' '));
+
+/*
+svg.append(
+	...Object.keys(G).map( i => {
+		const p = plot.cloneNode(true);
+		p.id = i;
+		p.setAttribute('title',i);
+		p.setAttribute('points', [...range(G[i])].join(' '));
+		return p;
+	})
+);
+*/
+
+</script>

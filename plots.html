@@ -1,0 +1,50 @@
+<!doctype html>
+
+<head>
+	<title>Plots</title>
+	<link rel="stylesheet" href="-gs.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+</head>
+
+<svg viewBox="0 0 100 100" transform="scale(1,-1)" height=400 width=400 >
+
+	<polyline id=orig fill=none stroke=gray />
+	<polyline id=aprx fill=none stroke=blue />
+	
+</svg>
+
+<script type=module >
+
+/*
+const	orig = document.getElementsById('svg')[0],
+	aprx = document.getElementsByTagName('polyline')[0]
+*/
+
+const	
+	poly = K => x => K.reduceRight( (a,k) => a*x+k ),
+	
+	VAP = poly([ 1.24871, 0.0988438, 0.00152907, -3.07031e-06, 4.21329e-07 ]), /* Vapor Pressure coefficients */
+	APX = poly([ 1.249, 0.0988, 0.00152907, -3.07031e-06, 4.21329e-07 ]);
+
+function* rangefn(fn,a,b,d) {
+  for(let m=a; m < b; m +=d)
+	yield m.toFixed(3)+','+fn(m).toFixed(3); //`${m},${4*fn(m)}`;
+}
+
+
+orig.setAttribute('points', [...rangefn(VAP,0,100,1)].join(' '));
+aprx.setAttribute('points', [...rangefn(APX,0,100,1)].join(' '));
+
+/*
+svg.append(
+	...Object.keys(G).map( i => {
+		const p = plot.cloneNode(true);
+		p.id = i;
+		p.setAttribute('title',i);
+		p.setAttribute('points', [...range(G[i])].join(' '));
+		return p;
+	})
+);
+*/
+
+</script>

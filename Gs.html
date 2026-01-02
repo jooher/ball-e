@@ -22,6 +22,11 @@ function* range(fn) {
 	yield m.toFixed(3)+','+(4*fn(m)).toFixed(3); //`${m},${4*fn(m)}`;
 }
 
+function* rangefn(fn,a,b,d) {
+  for(let x=a; m < b; m +=.d)
+	yield m.toFixed(3)+','+(fn(m)).toFixed(3); //`${m},${4*fn(m)}`;
+}
+
 const	svg = document.getElementsByTagName('svg')[0],
 	plot = document.getElementsByTagName('polyline')[0];
 

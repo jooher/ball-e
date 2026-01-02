@@ -1,7 +1,7 @@
 import {xyz} from './xyz.js';
-import {Atmos} from './imperial/atmos.js';
-import {Bullet} from './imperial/bullet.js';
-import trajectory from './imperial/traj.js';
+import {Bullet} from './bullet.js';
+import {Atmos} from './metric/atmos.js';
+import trajectory from './metric/traj.js';
 
 
 const
