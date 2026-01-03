@@ -28,6 +28,7 @@ inputs = {
 		G	:"G7",
 		bc	: 0.5,
 		vm	: 3500,
+		drift	: 62
 	},	// :{drag}
 	
 	atmos	:{ // 

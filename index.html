@@ -14,15 +14,15 @@
 
 		<section name=sight>
 			<h2>Sight</h2>
-			<label>Mount, cm<input type=number name=height value=5 step=1 /></label>
-			<label>LOS °<input type=number name=los value=0 step=0.01  /></label>
-			<label>Zero, m<input type=number name=zero value=100 min=100 max=6000 step=10 /></label>
-			<label>Dist, m<input type=number name=dist value=300 min=100 max=6000 step=10 /></label>
+			<label title='Sight height above barrel'>Mount, cm<input type=number name=height value=5 step=1 /></label>
+			<label title='Vertical angle of line of sight'>LOS °<input type=number name=los value=0 step=0.01  /></label>
+			<label title='Zero distance'>Zero, m<input type=number name=zero value=100 min=100 max=6000 step=10 /></label>
+			<label title='Target distance'>Dist, m<input type=number name=dist value=300 min=100 max=6000 step=10 /></label>
 		</section>
 
 		<section name=bullet>
 			<h2>Bullet</h2>
-			<label>Drag
+			<label title='Drag function'>Drag
 				<select name=G value="G7">
 					<option>G1</option>
 					<option>G2</option>
@@ -35,24 +35,24 @@
 					<option>Gi</option>
 				</select>
 			</label>
-			<label>BC<input type=number name=bc value=0.25 min=0.010 max=2.00 step=0.001 /></label>
-			<label>V, m/s<input type=number name=vm value=800 min=1000 max=6000 /></label>
-			<label>Drift<input type=number name=drift value=3500 min=1000 max=6000 /></label>
+			<label title='Ballistic coefficient for given drag function'>BC<input type=number name=bc value=0.25 min=0.010 max=2.00 step=0.001 /></label>
+			<label title='Muzzle velocity'>V, m/s<input type=number name=vm value=800 min=1000 max=6000 /></label>
+			<label title='Spin drift at 1 km'>D@1km, cm<input type=number name=drift value=62 step=1 /></label>
 		</section>
 
 		<section name=atmos>
 			<h2>Atmosphere</h2>
-			<label>Alt, m<input type=number name=m value=0 min=0 max=30000 /></label>
-			<label>T, °C<input type=number name=C value=15 min=0 max=100 step=1 /></label>
-			<label>H, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
-			<label>P, mbar<input type=number name=mbar value=1000 min=600 max=1200 step=1 /></label>
+			<label title='Altitude'>Alt, m<input type=number name=m value=0 min=0 max=30000 /></label>
+			<label title='Temperature'>T, °C<input type=number name=C value=15 min=0 max=100 step=1 /></label>
+			<label title='Humidity'>H, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
+			<label title='Pressure'>P, mbar<input type=number name=mbar value=1000 min=600 max=1200 step=1 /></label>
 		</section>
 
 		<input type=submit value=Calculate />
 		
 		<section id=aim>
-			<label>Elevation, MOA<input type=number id=elevation name=elevation /></label>
-			<label>Azimuth, MOA<input type=number id=azimuth name=azimuth /></label>
+			<label title='Vertical angle for aiming'>Elevation, MOA<input type=number id=elevation name=elevation /></label>
+			<label title='Horizontal angle for aiming'>Azimuth, MOA<input type=number id=azimuth name=azimuth /></label>
 		</section>
 		
 	</form>

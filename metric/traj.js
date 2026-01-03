@@ -34,7 +34,7 @@ tilt = ({
 
 export default ({
 	sight,	// :{height,los,zero,dist},
-	bullet,	// :{drag,weight,vm},
+	bullet,	// :{drag,weight,vm,drift},
 	atmos,	// :{kD,M}
 	wind,
 	range = {min:0, inc:20 },
@@ -68,6 +68,7 @@ export default ({
 			).scale(bullet.vm); //xyz(vm,0,0), // 
 			
 		let	t = 0,
+			L = 0,
 			mark = range.min;
 		
 		while (R.x<reach && R.y>MINY && V.x>MINVX){
@@ -81,6 +82,7 @@ export default ({
 			V.app(V,-drag).app(G,dt);
 			R.app(V,dt*damp);
 			t += dt*damp;
+			L += va*dt*damp;
 			
 			if(R.x >= sight.zero && !knob)
 				knob = { elevation:R.y/R.x, azimuth:R.z/R.x }
@@ -98,12 +100,13 @@ export default ({
 		}
 		const 
 			dy = R.y,
-			dz = R.z;
+			dz = R.z + bullet.drift(L);
 			
 		error = dy*dy + dz*dz;
 		
-		elevation -= .75 * dy/R.x;
-		azimuth -= .75 * dz/R.x;
+		elevation -= dy/R.x;
+		azimuth -= dz/R.x;
+		
 		
 	}
 	return { trace, knob, error };
