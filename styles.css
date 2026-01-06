@@ -28,7 +28,7 @@ body>div{
 }
 
 
-svg{background:wheat;/* height: inherit; *//* width: inherit; */flex: 1;min-height: 320px;border-radius: 1em;}
+svg{background:wheat;height: inherit;width: inherit;/* flex: 1; *//* min-height: 320px; */border-radius: 1em;}
 
 
 section>label {
@@ -94,4 +94,6 @@ pre#atmos {
 
 .plot {
     position: relative;
+    width: 100%;
+    flex: 1;
 }
