@@ -38,13 +38,14 @@ inputs = {
 		pc	: 50
 	},	// :{kD,M}
 	
+//	wind	:null,
+
+/*
 	aim :{
 		elevation: 0,
 		azimuth: 0
 	}
 	
-//	wind	:null,
-/*
 	range :{
 		min: 0,
 		inc: 100,
@@ -55,8 +56,8 @@ inputs = {
 MOA = Math.PI/(180*60),
 click = 0.25*MOA,
 
-rad2MOA = r => Math.round(r/MOA),
-MOA2rad = a => a*MOA,
+rad2MOA = (r,unit) => Math.round(r/MOA/unit),
+MOA2rad = (a,unit) => a*MOA,
 
 rad2clicks = r => Math.round(r/click),
 clicks2rad = c => click*c,
@@ -103,22 +104,29 @@ window.calculate = e => {
 	
 	//e.preventDefault();
 	
-	const shot = scan(f,inputs);
+	const shot = scan(f,inputs),
+		unit = parseFloat(el("unit").value);
 		
 	shot.bullet = new Bullet(shot.bullet);
 	shot.atmos = new Atmos(shot.atmos);
+	
+	el("atmos").textContent = shot.atmos.data;
 	
 	pos(zero,{x:shot.sight.zero/10,y:0});
 	pos(dist,{x:shot.sight.dist/10,y:0});
 	
 	const traj = trajectory(shot);
+	
 	el("trajectory").setAttribute("points",traj.trace.map( ({range,drop}) => `${Math.round(range/10)},${Math.round(drop*200)/100}` ).join(" "));
 	
-	el("elevation").value = rad2MOA(traj.knob.elevation);
-	el("azimuth").value = rad2MOA(traj.knob.azimuth);
+	el("elevation").value = rad2MOA(traj.knob.elevation,unit);
+	el("azimuth").value = rad2MOA(traj.knob.azimuth,unit);
 };
 
 draggable(window.svg,{
+	drag: T => {
+		T.matrix.f = 0;
+	},
 	end: T => {
 		T.matrix.f = 0;
 		f.querySelector('[name=dist]').value = Math.round(T.matrix.e) * 10;

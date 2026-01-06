@@ -6,15 +6,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<style>
 	 svg{
-	 background:whitesmoke;
-	 width:1000px;
-	 height:500px;
-	 
+		 background:whitesmoke;
+		 width:1000px;
+		 height:500px;
 	 }
 	</style>
 </head>
 
-<svg viewBox="0 0 1.2 120" preserveAspectRatio="none" vector-effect="non-scaling-stroke" transform="scale(1,-1)" >
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" vector-effect="non-scaling-stroke" transform="scale(1,-1)" >
 
 	<polyline id=orig fill=none stroke=gray vector-effect="non-scaling-stroke" />
 	<polyline id=aprx fill=none stroke=blue vector-effect="non-scaling-stroke" />
@@ -23,7 +22,7 @@
 
 <script type=module >
 
-import {PLOT,ORIG,APRX,bounds} from './deriv.js';
+import {PLOT,ORIG,APRX,bounds} from './vapm.js';
 
 function* rangefn(fn,{a,b,d}) {
   for(let x=a; x <= b; x +=d)

@@ -85,3 +85,13 @@ input[type="submit"] {
     padding: .5em;
     margin: .5rem;
 }
+
+pre#atmos {
+    position: absolute;
+    margin: 1em;
+    z-index: 1;
+}
+
+.plot {
+    position: relative;
+}

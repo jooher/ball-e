@@ -45,24 +45,28 @@
 			<label title='Altitude'>Alt, m<input type=number name=m value=0 min=0 max=30000 /></label>
 			<label title='Temperature'>T, °C<input type=number name=C value=15 min=0 max=100 step=1 /></label>
 			<label title='Humidity'>H, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
-			<label title='Pressure'>P, mbar<input type=number name=mbar value=1000 min=600 max=1200 step=1 /></label>
+			<label title='Pressure'>P, mbar<input type=number name=mbar min=600 max=1200 step=1 /></label>
 		</section>
 
 		<input type=submit value=Calculate />
 		
 		<section id=aim>
-			<label title='Vertical angle for aiming'>Elevation, MOA<input type=number id=elevation name=elevation /></label>
-			<label title='Horizontal angle for aiming'>Azimuth, MOA<input type=number id=azimuth name=azimuth /></label>
+			<label title='Vertical compensation'>Elevation<input type=number id=elevation name=elevation /></label>
+			<label title='Horizontal compensation'>Azimuth<input type=number id=azimuth name=azimuth /></label>
+			<label title='Scope click'>Unit, × MOA<input type=number id=unit value=0.25 name=unit /></label>
 		</section>
 		
 	</form>
 
-	<svg	id=svg viewBox="-10 -25 220 175" transform="scale(1,-1)" >
-		<path d="M0,0 L200,0 M50,-4 l0,8 M100,-10 l0,20 M150,-4 l0,8 M200,-10 l0,20"  stroke=gray fill=none />
-		<path id=zero d="M0,1 L0,10 M0,-1 L0,-10 M-1,0 L-10,0 M1,0 L10,0" fill=none stroke=blue />
-		<polyline id=dist class=draggable points="-6,0 0,10 6,0 0,-10 -6,0" stroke=none fill=blue />
-		<polyline id=trajectory stroke=white fill=none />
-	</svg>
+	<div	class=plot >
+		<pre id=atmos ></pre>
+		<svg	id=svg viewBox="-10 -25 220 175" transform="scale(1,-1)" >
+			<path d="M0,0 L200,0 M50,-4 l0,8 M100,-10 l0,20 M150,-4 l0,8 M200,-10 l0,20"  stroke=gray fill=none />
+			<path id=zero d="M0,1 L0,10 M0,-1 L0,-10 M-1,0 L-10,0 M1,0 L10,0" fill=none stroke=blue />
+			<polyline id=dist class=draggable points="-6,0 0,10 6,0 0,-10 -6,0" stroke=none fill=blue />
+			<polyline id=trajectory stroke=white fill=none />
+		</svg>
+	</div>
 
 
 </body>

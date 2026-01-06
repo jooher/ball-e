@@ -1,8 +1,10 @@
 export const
-	poly = K => x => K.reduceRight( (a,k) => a*x+k ),
+	// poly = K => x => K.reduceRight( (a,k) => a*x+k ),
+	poly = (kx,K,ky) => x => ky*K.reduceRight( (a,k) => a*x*kx+k ),
 
-	ORIG = poly([ 1.24871, 0.0988438, 0.00152907, -3.07031e-06, 4.21329e-07 ]), /* Vapor Pressure coefficients */
-	APRX = poly([ 0, 1.7e-1, -3e-3, 6.4e-5, 5.1e-7]),
+	ORIG = null, //poly([ 1.24871, 0.0988438, 0.00152907, -3.07031e-06, 4.21329e-07 ]), /* Vapor Pressure coefficients */
+	//APRX = poly([ 0, 1.7e-1, -3e-3, 6.4e-5, 5.1e-7]),
+	APRX = poly(.01,[ 0, 10, -8, 43, 55],1),
 	bounds={a:0,b:100,d:1},
 	
 PLOT =`

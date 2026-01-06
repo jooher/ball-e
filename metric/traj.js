@@ -37,8 +37,8 @@ export default ({
 	bullet,	// :{drag,weight,vm,drift},
 	atmos,	// :{kD,M}
 	wind,
-	range = {min:0, inc:20 },
-	aim: {azimuth = 0, elevation = 0}
+	range = {min:0, inc:20 }
+	//aim = {azimuth: 0, elevation = 0}
 }) => {
 	
 	const	// rotate gravity and wind into the sight space
@@ -50,7 +50,9 @@ export default ({
 
 	let	trace,
 		knob,
-		error		= 1e9,
+		error	= 1e9,
+		elevation = 0,
+		azimuth = 0,
 		reach = Math.max(sight.zero, sight.dist),
 		i = MAXIT;
 	  
