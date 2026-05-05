@@ -11,11 +11,7 @@ const	/* atmospheric constants */
 	
 	poly = (kx,K,ky) => x => ky*K.reduceRight( (a,k) => a*x*kx+k ),
 	//VAP = poly([ 0, 1.7e-1, -3.0e-3, 6.4e-5, 5.1e-7])
-	VAP = poly(.01,[ 0, 10, -8, 43, 55],10), /* Vapor Pressure, °C => mbar, good for 0-100 °C */
-	
-	kTPH2D	= (kT,P,H) => {
-		
-	}
+	VAP = poly(.01,[ 0, 10, -8, 43, 55],10) /* Vapor Pressure, °C => mbar, good for 0-100 °C */
 
 ;
 
@@ -34,7 +30,7 @@ export function Atmos({ m, C, mbar, pc, kgm3, ms }) {
 		P = mbar || STD.P - A*.1, // mbar/m, atmosphere pressure gradient
 		Pv = Tc<0	? 0:H*VAP(Tc), // mbar, water vapor pressure
 		
-		kD = kgm3	? kgm3/STD.D : kT*(P-0.3783*Pv)/STD.P, /* water vapor is 38% less dense than air*/
+		kD = kgm3	? kgm3/STD.D : kT*(P-0.3783*Pv)/STD.P, /* water vapor is 37.83% less dense than air*/
 		M = ms	?? Math.sqrt(T)*19.396; /* Sound Speed coefficient m/s */
 		
 	

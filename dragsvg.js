@@ -10,13 +10,16 @@ const
 		};
 }
 
-let svg, ctm, T = null, pinch, events;
+let svg, ctm, tgt, T = null, pinch, events;
+
 
 const	
 	start = e => {
-		if (!e.target.classList.contains('draggable'))return;
 		
-		const b = e.target.transform.baseVal;
+		const target = (tgt||e.target),
+			b = target.transform.baseVal;
+			
+		if (!target.classList.contains('draggable'))return;		
 			
 		if( !b.length || b[0].type !== SVGTransform.SVG_TRANSFORM_TRANSLATE)
 			T=b.insertItemBefore(svg.createSVGTransform(), 0).setTranslate(0, 0);
@@ -57,9 +60,10 @@ dragEvents = {
 	touchcancel:end
 }
 
-export default (el,handlers) => {
+export default (el,pin,handlers) => {
 	svg = el;
 	ctm = svg.getScreenCTM();
+	tgt = pin;
 		
 	events = handlers;
 	for(const e in dragEvents)

@@ -123,7 +123,7 @@ window.calculate = e => {
 	el("azimuth").value = rad2MOA(traj.knob.azimuth,unit);
 };
 
-draggable(window.svg,{
+draggable( window.svg, window.svg.querySelector("#dist"), {
 	drag: T => {
 		T.matrix.f = 0;
 	},
