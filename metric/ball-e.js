@@ -123,13 +123,15 @@ window.calculate = e => {
 	el("azimuth").value = rad2MOA(traj.knob.azimuth,unit);
 };
 
+const pin = f.querySelector('[name=dist]');
+
 draggable( window.svg, window.svg.querySelector("#dist"), {
 	drag: T => {
 		T.matrix.f = 0;
+		pin.value = Math.round(T.matrix.e) * 10;
 	},
 	end: T => {
 		T.matrix.f = 0;
-		f.querySelector('[name=dist]').value = Math.round(T.matrix.e) * 10;
 		f.submit();
 	}
 });
