@@ -28,7 +28,7 @@
 // sleep configuration
 #define SLEEP_DELAY_MAX 2e3
 #define SLEEP_DELAY_INC 10
-#define SLEEP_AFTER_MS 15e3
+#define SLEEP_AFTER_MS 60e3
 #define DEEP_SLEEP_AFTER_MS 20e3
 #define WIFI_TIMEOUT 10e3
 
@@ -192,6 +192,18 @@ bool read_atmosphere(){
   return true;
 }
 
+struct data_t{
+  int16_t header,range,pitch,roll, t,p,h,status;
+};
+
+union broadcast_t{
+  uint8_t bytes[16];
+  data_t data;
+};
+
+broadcast_t broadcast;
+  //data_t():header(0xff),status(0){}
+
 void setup(){
 
   Serial.begin(9600);
@@ -232,6 +244,8 @@ void setup(){
   esp_pm_configure(&pm_config);
 */
 
+  broadcast.data.header = 0xffff;
+
   say("Setup done\n");
   delay(2000);
 }
@@ -243,17 +257,7 @@ void cross(int x0, int y0, int pitch, int roll){
 
 int startTime = millis();
 
-struct data_t{
-  int16_t header, status, range,pitch,roll, t,p,h;
-};
 
-union broadcast_t{
-  uint8_t bytes[16];
-  data_t data;
-};
-
-broadcast_t broadcast;
-  //data_t():header(0xff),status(0){}
 
 bool updateChecked = false;
 
@@ -300,6 +304,7 @@ void loop() {
       oled.printf(d<10 ? "%.1f" : "%.0f",d);
     }else oled.println("lrf?\n");
 
+    ++data.status;
 
     if(ok_ble)
       BLE::update(broadcast.bytes,16);

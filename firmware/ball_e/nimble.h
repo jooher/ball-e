@@ -2,37 +2,36 @@
 
 class BLE {
   
-    static const char* name; 
-    static NimBLEAdvertisementData packet; 
-    static NimBLEAdvertising *pAdvertising;
+  static const char* name; 
 
   public:
 
   static bool init(const char* deviceName, int timing) {
     name = deviceName;
-    if(!NimBLEDevice::init(name))return false;
-    Serial.printf("BLE %s init as %s\n", NimBLEDevice::getAddress().toString().c_str(), name); // 
-    pAdvertising = NimBLEDevice::getAdvertising();
-    pAdvertising->setMinInterval(timing); 
-    pAdvertising->setMaxInterval(timing);
-    pAdvertising->setName(name);
+    if(!BLEDevice::init(name)) return false;
+    Serial.printf("BLE %s init as %s\n", BLEDevice::getAddress().toString().c_str(), name); // 
+    BLEAdvertising* pA = BLEDevice::getAdvertising();
+    pA->setMinInterval(timing); 
+    pA->setMaxInterval(timing);
     return true;
   }
 
   static bool start(){
-    return pAdvertising && pAdvertising->start();
+    return BLEDevice::startAdvertising(); //pAdvertising && pAdvertising->start();
   }
 
   static bool stop(){
-    return pAdvertising && pAdvertising->stop();
+    return BLEDevice::stopAdvertising(); //pAdvertising && pAdvertising->stop();
   }
   
   static bool update(uint8_t* data, int size){
-    if(!pAdvertising)return false;
-    pAdvertising->clearData();
-    packet.setName(name);
-    packet.setManufacturerData(data, size);
-    pAdvertising->setAdvertisementData(packet);
+    BLEAdvertising* pA = NimBLEDevice::getAdvertising();
+    pA->clearData();
+    BLEAdvertisementData ad = pA->getAdvertisementData();
+    ad.setName(name);
+    ad.setManufacturerData(data,size);
+    pA->setAdvertisementData(ad);
+    pA->refreshAdvertisingData();
     return true;
   }
 
@@ -40,5 +39,3 @@ class BLE {
 };
 
 const char* BLE::name = nullptr;
-NimBLEAdvertisementData BLE::packet;
-NimBLEAdvertising* BLE::pAdvertising = nullptr;
