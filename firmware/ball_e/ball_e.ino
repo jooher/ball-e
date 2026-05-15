@@ -1,4 +1,4 @@
-#define VERSION "1"
+#define VERSION "2"
 #define VER_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.version"
 #define BIN_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.ino.bin"
 
@@ -58,7 +58,8 @@ Adafruit_BMP280 bmp;
 BMI160 bmi(0x69);
 
 
-#include "ble.h"
+#include "nimble.h"
+//#include <ArduinoBLE.h>
 #include "OTA.h"
 
 #define say Serial.println
@@ -87,7 +88,8 @@ bool
   ok_tph=false,
   ok_imu=false,
   ok_oled=false,
-  ok_lrf=false;
+  ok_lrf=false,
+  ok_ble=false;
 
 int err = 0;
 
@@ -112,15 +114,15 @@ bool prepare(){
 
   ok_tph = aht.begin() && bmp.begin();
   ok_imu = bmi.init();//&&false
-  ok_lrf  = lrf.init(ENA,RX,TX);
+  ok_lrf = lrf.init(ENA,RX,TX);
+  ok_ble = BLE::init("Ball-e",320);
 
   delay(100);
 
   if(ok_imu){
     bmi.accel();
-    bmi.gyro();    
+    bmi.gyro();
   }else fail("imu");
-
 
   if(ok_tph){
     bmp.setSampling(
@@ -150,9 +152,10 @@ bool start_sensors(){
   say("start sensors");
   if(ok_imu)bmi.begin();
   if(ok_lrf)lrf.begin();
-//BLE::begin("Ball-e");
+  if(ok_ble)BLE::start();
 //digitalWrite(ENA,HIGH);
   delay(20);
+
   active=true;
   return true;
 }
@@ -160,6 +163,7 @@ bool start_sensors(){
 bool pause_sensors(){
   if(!active)return false;
   say("pause sensors");
+  if(ok_ble)BLE::stop();
   //digitalWrite(ENA,LOW);
   active = false;
   return true; 
@@ -176,12 +180,6 @@ union{
   } axes;
 } raw;
 
-bool read_sensors(){
-  if(!active)return false;
-  if(ok_imu)bmi.read(raw.bytes);
-  if(ok_lrf) d = 0.1f*lrf.data.distance_dm;
-  return true;  
-}
 // atmosphere reads once, gyro in loop
 sensors_event_t tt,hh;
 float t,p,h;
@@ -246,15 +244,15 @@ void cross(int x0, int y0, int pitch, int roll){
 int startTime = millis();
 
 struct data_t{
-  int16_t header, status, t,p,h, d,pitch,roll;
+  int16_t header, status, range,pitch,roll, t,p,h;
 };
 
 union broadcast_t{
-  char bytes[16];
+  uint8_t bytes[16];
   data_t data;
 };
 
-broadcast_t buf;
+broadcast_t broadcast;
   //data_t():header(0xff),status(0){}
 
 bool updateChecked = false;
@@ -280,13 +278,18 @@ void loop() {
     oled.setCursor(0,0);
     //oled.println(++c);
 
-    read_sensors();
+    data_t& data = broadcast.data;
 
     if(ok_imu){
-      cross(16,100,raw.axes.ax>>6,raw.axes.ay>>8);
+      bmi.read(raw.bytes);
+      data.pitch = raw.axes.ax;
+      data.roll = raw.axes.ay;
+      cross(16,100,data.pitch>>6,data.roll>>8);
     }else oled.println("imu?\n");
 
     if(ok_lrf){
+      data.range = lrf.data.distance_dm;
+      d = 0.1f*data.range;
       if(d<1000){
         oled.setCursor(0,68);
         oled.setFont(&FreeSansBold9pt7b);
@@ -297,15 +300,15 @@ void loop() {
       oled.printf(d<10 ? "%.1f" : "%.0f",d);
     }else oled.println("lrf?\n");
 
+
+    if(ok_ble)
+      BLE::update(broadcast.bytes,16);
+
+    //oled.printf("\n%04x\n",broadcast.data.header);
+
     oled.display();      
 
-/*
-    if(BLE::started){
-      memcpy(&broadcast[2], (char*)(rf.response+3), 8);
-      ++broadcast[10];
-      BLE::advertise(broadcast,12);      
-    }
-*/
+/**/
   }else{ // button not pressed
 
     int time = millis()-lastReleased;
@@ -325,7 +328,7 @@ void loop() {
           pause_sensors();
           oled.clearDisplay();
           oled.display();
-        //BLE::passivate();
+          BLE::stop();
           sleepDelay = 100;
         }
         break;
