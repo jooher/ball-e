@@ -9,18 +9,28 @@ class BLE {
   static bool init(const char* deviceName, int timing) {
     name = deviceName;
     if(!BLEDevice::init(name)) return false;
-    Serial.printf("BLE %s init as %s\n", BLEDevice::getAddress().toString().c_str(), name); // 
+    Serial.printf("BLE %s init as %s\n", BLEDevice::getAddress().toString().c_str(), name); //
+    interval(timing);
+    return true;
+  }
+
+  static bool interval(int slots){
+    Serial.printf("BLE interval: %d\n", slots);
     BLEAdvertising* pA = BLEDevice::getAdvertising();
-    pA->setMinInterval(timing); 
-    pA->setMaxInterval(timing);
+    if(pA->isAdvertising())pA->stop();
+    pA->setMinInterval(slots); 
+    pA->setMaxInterval(slots);
+    pA->start();
     return true;
   }
 
   static bool start(){
+    Serial.println("BLE start");
     return BLEDevice::startAdvertising(); //pAdvertising && pAdvertising->start();
   }
 
   static bool stop(){
+    Serial.println("BLE stop");
     return BLEDevice::stopAdvertising(); //pAdvertising && pAdvertising->stop();
   }
   

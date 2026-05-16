@@ -36,6 +36,10 @@ class BMI160 : BasicI2C {
     return !reg(0x7E,0x11);
   }
 
+  bool stop(){
+    return true;
+  }
+
   int x7E(byte cmd){
     return reg(0x7E,cmd);
   }

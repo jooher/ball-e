@@ -26,12 +26,17 @@ class DLRF final {
   }
 
   bool begin(){
-    enable(true);
-    return true;
+    return enable(true);
   }
 
-  void enable(bool enabled=true){
+  bool stop(){
+    return enable(false);
+  }
+
+  bool enable(bool enabled=true){
+    if(EN<0) return false;
     digitalWrite(EN, enabled ? HIGH : LOW);
+    return true;
   }
 
   int wrd(int n) {

@@ -1,4 +1,4 @@
-#define VERSION "2"
+#define VERSION "3"
 #define VER_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.version"
 #define BIN_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.ino.bin"
 
@@ -10,7 +10,7 @@
 #define SCL 6
 #define ASK 9
 #define LED 8
-#define ENA 8
+#define ENA 10
 
 #define PRESSED 0 // button is to GND
 
@@ -31,6 +31,9 @@
 #define SLEEP_AFTER_MS 60e3
 #define DEEP_SLEEP_AFTER_MS 20e3
 #define WIFI_TIMEOUT 10e3
+
+#define BLE_fast 160
+#define BLE_slow 3200
 
 #include <Wire.h>
 
@@ -115,7 +118,7 @@ bool prepare(){
   ok_tph = aht.begin() && bmp.begin();
   ok_imu = bmi.init();//&&false
   ok_lrf = lrf.init(ENA,RX,TX);
-  ok_ble = BLE::init("Ball-e",320);
+  ok_ble = BLE::init("Ball-e",BLE_slow);
 
   delay(100);
 
@@ -146,28 +149,6 @@ bool prepare(){
 }
 
 bool active = false;
-
-bool start_sensors(){
-  if(active)return false;
-  say("start sensors");
-  if(ok_imu)bmi.begin();
-  if(ok_lrf)lrf.begin();
-  if(ok_ble)BLE::start();
-//digitalWrite(ENA,HIGH);
-  delay(20);
-
-  active=true;
-  return true;
-}
-
-bool pause_sensors(){
-  if(!active)return false;
-  say("pause sensors");
-  if(ok_ble)BLE::stop();
-  //digitalWrite(ENA,LOW);
-  active = false;
-  return true; 
-}
 
 IMU_data_t m;
 float pitch=0., roll=0., d=0.;
@@ -261,7 +242,7 @@ int startTime = millis();
 
 bool updateChecked = false;
 
-int sleepState = 0, sleepDelay = 0, lastReleased = millis();
+int sleepState = 2, sleepDelay = 0, lastReleased = millis();
 
 int c=0;
 
@@ -269,31 +250,69 @@ void loop() {
 
   delay(sleepDelay);
 
+  data_t& data = broadcast.data;
+
   if( digitalRead(ASK) == PRESSED ){
 
-    if(sleepState){
+    if(sleepState>1){
+      if(ok_imu)bmi.begin();
+      if(ok_ble)BLE::interval(BLE_fast);
+    }
+    
+    if(sleepState>0){
       say("button on");
-      start_sensors();
+      if(ok_lrf)lrf.begin();
       sleepState = 0;
       sleepDelay = 200;
     }
 
-    oled.clearDisplay();
-    oled.setCursor(0,0);
-    //oled.println(++c);
-
-    data_t& data = broadcast.data;
-
-    if(ok_imu){
-      bmi.read(raw.bytes);
-      data.pitch = raw.axes.ax;
-      data.roll = raw.axes.ay;
-      cross(16,100,data.pitch>>6,data.roll>>8);
-    }else oled.println("imu?\n");
-
     if(ok_lrf){
       data.range = lrf.data.distance_dm;
       d = 0.1f*data.range;
+    } //else oled.println("lrf?\n");
+
+
+  }else{
+
+    int time = millis()-lastReleased;
+
+    switch(sleepState){
+
+      case 0: // no sleep, actively working
+        say("button off");
+        sleepState=1; // hold distance; accel keeps working
+        lastReleased = millis();
+        if(ok_lrf)lrf.stop();
+        break;
+
+      case 1: // hold
+        if(time > SLEEP_AFTER_MS){
+          say("go to sleep");
+          sleepState = 2; // turn off accel and display
+          oled.clearDisplay();
+          oled.display();
+          if(ok_imu)bmi.stop();
+          if(ok_ble)BLE::interval(BLE_slow);
+        }
+        break;
+
+      case 2: // light sleep display turned off
+	      if(time > DEEP_SLEEP_AFTER_MS){
+          say("go to deep sleep");
+          sleepState = 3; // TODO: deep sleep
+        }
+        
+      default:
+        delay(1000);
+
+    }
+
+  }
+
+  if(sleepState<2){
+
+    oled.clearDisplay();
+
       if(d<1000){
         oled.setCursor(0,68);
         oled.setFont(&FreeSansBold9pt7b);
@@ -302,56 +321,18 @@ void loop() {
         oled.setFont();
       }
       oled.printf(d<10 ? "%.1f" : "%.0f",d);
-    }else oled.println("lrf?\n");
 
-    ++data.status;
+      if(ok_imu){
+        bmi.read(raw.bytes);
+        data.pitch = raw.axes.ax;
+        data.roll = raw.axes.ay;
+        cross(16,100,data.pitch>>6,data.roll>>8);
+      }//else oled.println("imu?\n");
+
+    oled.display();
 
     if(ok_ble)
       BLE::update(broadcast.bytes,16);
-
-    //oled.printf("\n%04x\n",broadcast.data.header);
-
-    oled.display();      
-
-/**/
-  }else{ // button not pressed
-
-    int time = millis()-lastReleased;
-
-    switch(sleepState){
-
-      case 0: // no sleep, actively working
-        say("button off");
-        sleepState=1; // pause
-        lastReleased = millis();
-        break;
-
-      case 1: // paused
-        if(time > SLEEP_AFTER_MS){
-          say("go to sleep");
-          sleepState = 2; // go to light sleep
-          pause_sensors();
-          oled.clearDisplay();
-          oled.display();
-          BLE::stop();
-          sleepDelay = 100;
-        }
-        break;
-
-      case 2: // light sleep display turned off
-	      if(time > DEEP_SLEEP_AFTER_MS){
-          say("go to deep sleep");
-          sleepState = 3;
-          //go to deeper sleep
-        }else
-        if(sleepDelay < SLEEP_DELAY_MAX)
-          sleepDelay += SLEEP_DELAY_INC;
-        break;
-
-      default:
-        //say("zzz....");
-        break;
-    }
 
   }
   
