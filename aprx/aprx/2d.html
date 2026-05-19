@@ -1,0 +1,106 @@
+<!doctype html>
+
+<head>
+	<title>Appro2D</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<style>
+	
+	svg{
+		background:whitesmoke;
+		width: 100%;
+		height:500px;
+		transform: scale(1,-1);
+	}
+	
+	polyline{
+		vector-effect:non-scaling-stroke;
+		stroke:inherit;
+		fill:none;
+	}
+	
+	#svg	{stroke:gray}
+	
+	#axis0 {transform:scale(2000,1);stroke:blue}
+	#aprx0 {transform:scale(2000,1);stroke: slateblue}
+	
+	#axis1 {transform:scale(1000,1); stroke:green}
+	#aprx1 {transform:scale(1000,1); stroke:purple}
+	#cnfd	{transform:scale(1000,1); stroke:lightgray}
+	
+	#result {transform:scale(1000,1); stroke:orange; }
+	
+	</style>
+</head>
+
+<svg id=svg viewBox="0 0 1500 20" preserveAspectRatio="none" >
+
+	<polyline points='0,0 1,0' />
+
+	<g id=axis0 ></g>
+	<g id=aprx0 ></g>
+	
+	<g id=axis1 ></g>
+	<g id=aprx1 ></g>
+	<g id=cnfd ></g>
+	
+	<g id=result ></g>
+	
+</svg>
+
+<script type=module >
+
+import data from './data/bcvm1000d.js';
+import model from './model/bcvm.js';
+
+const
+
+q = s => document.querySelector(s),
+flock = (g,lines,fn) => { fn ? g.append(...lines.map(fn)) : g.append(...lines) },
+
+polyline = points => {
+	const p = q("#svg>polyline").cloneNode(false);
+	p.setAttribute("points",points.map( ({x,y}) => `${x},${y.toFixed(2)}`).join(' '));
+	return p;
+},
+
+raw = axis => line => polyline(line.map( (value,j)=>({x:axis[j],y:value}) )),
+
+confined = (axis,kY) => line => {
+	const k=kY/(line[0]); //-o
+	return polyline(line.map( (value,j) => ({x:axis[j],y:(value)*k}) )); //-o
+},
+
+aprx = (axis,calc) => axis.map( (x,i)=> ({x,y:calc(x)}) ),
+range = (from,to,length) => Array.from({length}).map((n,i)=>from+i*(to-from)/length),
+
+
+{axes,fit,vals} = data,
+[bcx,vmx] = axes,
+[bca,vma] = axes.map( axis => range(axis.at(0),axis.at(1),20) ),
+
+/*
+ref = i => model[i](axes[i][fit[i]]),
+
+Vpin = vals[fit[0]][fit[1]],
+Apin = ref(0)*ref(1),
+Kpin = (Vpin-O)/(Apin-O),
+
+//vma = range(.6,1.3,.02),
+//bca = range(.2,.5,.02),
+calcbcvm = (x0,x1) => Kpin*(model[0](x0)*model[1](x1)+model2(x0*x1))+O,
+*/
+
+bcxvma = bcx.map( bc => polyline( vma.map( vm => ({ x:vm ,y:model(bc,vm) })) ) )
+;
+
+flock(q("#axis1"),vals,raw(vmx));//
+//flock(q("#cnfd"),map,confined(vmx,max));
+q("#aprx1").append(polyline(aprx(vma,calcvm)));
+
+
+q("#axis0").append(polyline(map.map((line,i)=>({x:bcx[i],y:line[fit[0]]}))));
+q("#aprx0").append(polyline(aprx(bca,calcbc)));
+
+flock(q("#result"),bcxvma);
+/**/
+</script>
