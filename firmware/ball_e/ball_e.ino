@@ -8,8 +8,8 @@
 
 #define SDA 5
 #define SCL 6
-#define ASK 9
 #define LED 8
+#define ASK 9
 #define ENA 10
 
 #define PRESSED 0 // button is to GND
@@ -280,6 +280,7 @@ void loop() {
 
       case 0: // no sleep, actively working
         say("button off");
+        sayf("U: %d; R: %d\n", calc.U, calc.R);
         sleepState=1; // hold distance; accel keeps working
         lastReleased = millis();
         if(ok_lrf)lrf.stop();
