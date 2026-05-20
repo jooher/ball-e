@@ -1,0 +1,203 @@
+<!doctype html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Ball-E -- simple ballistic traceulator</title>
+	<link rel=stylesheet href=styles.css />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+</head>
+
+
+<body>
+
+	<div class=app >
+		<form id=shot action=javascript:trigger() novalidate >
+
+			<section name=sight>
+				<h2>Sight</h2>
+				<label title='Sight height above barrel'>Mount, cm<input type=number name=height value=5 step=1 /></label>
+				<label title='Vertical angle of line of sight'>LOS °<input type=number name=los value=0 min=-30 max=30 step=5 /></label>
+				<label title='Zero distance'>Zero, m<input type=number name=zero value=100 min=100 max=6000 step=10 /></label>
+				<label title='Target distance'>Dist, m<input type=number name=dist value=1000 min=300 max=1600 step=10 /></label>
+			</section>
+
+			<section name=bullet>
+				<h2>Bullet</h2>
+				<label title='Drag function'>Drag
+					<select name=G value="G7">
+						<option>G1</option>
+						<option>G2</option>
+						<option>G4</option>
+						<option>G5</option>
+						<option>G6</option>
+						<option selected>G7</option>
+						<option>G7a</option>
+						<option>G8</option>
+						<option>Gl</option>
+						<option>Gi</option>
+					</select>
+				</label>
+				<label title='Ballistic coefficient for given drag function'>BC<input type=number name=bc value=0.25 min=0.15 max=.50 step=0.01 /></label>
+				<label title='Muzzle velocity'>V, m/s<input type=number name=vm value=800 min=600 max=1200 step=50 /></label>
+				<label title='Spin drift at 1 km'>D@1km, cm<input type=number name=drift value=62 step=1 /></label>
+			</section>
+
+			<section name=atmos>
+				<h2>Atmosphere</h2>
+				<label title='Altitude'>Alt, m<input type=number name=m value=0 min=0 max=6000 step=500 /></label>
+				<label title='Temperature'>T, °C<input type=number name=C value=15 min=-20 max=40 step=10 /></label>
+				<label title='Humidity'>H, %<input type=number name=pc value=50 min=0 max=100 step=10 /></label>
+				<label title='Pressure'>P, mbar<input type=number name=mbar min=600 max=1200 step=100 /></label>
+			</section>
+
+			<input type=submit value=Calculate />
+			
+			<section id=aim>
+				<label title='Vertical compensation'>Elevation<input type=number id=elevation name=elevation /></label>
+				<label title='Horizontal compensation'>Azimuth<input type=number id=azimuth name=azimuth /></label>
+				<label title='Scope click value'>Unit, × MOA<input type=number id=unit value=0.25 name=unit /></label>
+			</section>
+			
+		</form>
+		
+		<div	class=plot >
+			<pre id=atmos ></pre>
+			<svg	viewBox="-100 -100 2200 20" preserveAspectRatio=none >
+				<path d="M0,0 L200,0 M50,-4 l0,8 M100,-10 l0,20 M150,-4 l0,8 M200,-10 l0,20"  stroke=gray fill=none />
+				<path id=zero d="M0,1 L0,10 M0,-1 L0,-10 M-1,0 L-10,0 M1,0 L10,0" fill=none stroke=blue />
+				<polyline id=dist class=draggable points="-6,0 0,10 6,0 0,-10 -6,0" stroke=none fill=blue />
+				<polyline id=trajectory stroke=red fill=none />
+			</svg>
+		</div>
+		
+	</div>
+	
+	<div class=app>
+	
+		<div class=aprox >
+			<svg	id=trajdrop viewBox="0 0 1000 20" preserveAspectRatio=none >
+				<polyline id=traj class=trajectory />
+				<polyline id=tdrop />
+				<polyline id=para />
+				<polyline id=aprx />
+				<polyline id=drop />
+			</svg>
+		</div>
+		<div class=weights >
+			<svg	id=weights viewBox="0 0 1000 20" preserveAspectRatio=none >
+				<polyline points="0,0 1000,0"/>
+			</svg>
+		</div>
+
+	</div>
+	
+<label>vm,bc,kd,m<textarea id=matrix >
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+</textarea></label>
+	<button id=bcvmbtn >BCVM!</button>
+	<pre id=json ></pre>
+
+</body>
+
+<script type=module src="metric/ball-e.js"></script>
+	
+<script>
+
+
+const
+
+el = id => document.getElementById(id),
+
+str2mtx = txt => txt.trim().split(/\n/g).map(str=>str.split(/\s/g).map(s=>parseFloat(s))),
+poly = (kx,K,ky) => x => ky*K.reduceRight( (a,k) => a*x*kx+k ),
+
+points = (el,trace,kY=1) => el.setAttribute("points",trace.map( ({x,y}) => `${Math.round(x)},${(y*kY).toFixed(2)}` ).join(" ")),
+
+ab2sin = (a,b) =>{
+	const
+	dx=b.x-a.x,
+	dy=b.y-a.y,
+	h = Math.sqrt(dx*dx+dy*dy);
+	return dy/h;
+},
+
+trigger = () =>{
+
+	const shot = calculate(prepareshot()),
+		trace = shot.trace;
+	
+	points( el("trajectory"), trace);
+	
+	points( el("traj"), trace);
+	points( el("para"), trace.map( ({x,y}) => ({x,y:shot.para(x)}) ) );
+	points( el("tdrop"), trace.map( ({x,y}) => ({x,y:shot.para(x)-y}) ) );
+	
+	//const F = vacuum(shot);
+	//points( el("drop"), trace.map( ({x,y}) => ({x,y:F.drop(x)}) ) );
+	//points( el("aprx"), trace.map( ({x,y}) => ({x,y:F.para(x)-F.drop(x)}) ) );
+	
+},
+
+stats={},
+
+plot = (key,min,max,stat) =>{
+	const svg = el("weights"),
+		pl = svg.firstElementChild.cloneNode(false),
+		kx = 1000/(max-min);
+	pl.classList.add(key);
+	points(pl,stat.map( ({v,w}) => ({x:(v-min)*kx, y:w }) ) );
+	svg.append(pl);
+},
+
+test = shot => {
+	const p = shot.traj.trace.at(-1);
+	return shot.traj.drop(p);///p.x;
+},
+
+row = e =>{
+	const par = e.target,
+		min=parseFloat(par.min),
+		max=parseFloat(par.max),
+		step=parseFloat(par.step),
+		key=e.target.name,
+		stat=[];
+	
+	for(let v=min; v<=max; v+=step){
+		e.target.value = v;
+		stat.push({v,w:test(calculate(prepareshot()))});
+	}
+	
+	console.log(stats[key] = stat);
+	plot(key,min,max,stat);
+}
+;
+
+document.querySelectorAll("[step]").forEach( i => {i.ondblclick=row} );
+
+let A = str2mtx(el("matrix").value);
+
+el("matrix").onchange = e =>{
+	A = str2mtx(e.target.value); // vm,bc,kd,m
+	trigger();
+};
+
+const
+MOA = (180*60)/Math.PI,
+ 
+range = (min,max,step) => Array.from({length:1+(max-min)/step}).map( (n,i)=>min+i*step ),
+bcs = range(.2,.5,.02),
+vms = range(600,1200,100),
+
+bcvm = shot => bcs.map( bc=> vms.map( vm=> 
+	shot.bullet.gbcvm("G7",bc*.01,vm) &&
+	test(calculate(shot))
+));
+
+el("bcvmbtn").onclick = e => {
+	el("json").textContent = JSON.stringify({axes:[bcs,vms],map:bcvm(prepareshot())});//,null,1
+}
+
+</script>
