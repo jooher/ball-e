@@ -14,6 +14,7 @@ html{
   .app {
     flex-direction: row;
     max-width: 800px;
+    /* max-height: 400px; */
   }
 }
 
@@ -29,7 +30,7 @@ html{
 }
 
 
-svg{background:wheat;height: inherit;width: 100%;flex: 1;min-height: 320px;border-radius: 1em;transform: scale(1,-1);/* vector-effect: non-scaling-stroke; */}
+svg{background:wheat;height: inherit;width: 100%;/* flex: 1; */min-height: 320px;max-height: 400px;border-radius: 1em;transform: scale(1,-1);/* vector-effect: non-scaling-stroke; */}
 
 
 section>label {
@@ -39,7 +40,7 @@ section>label {
 }
 
 label>input, label>select{
-	display:block;
+    display:block;
     width:100%;
     box-sizing: border-box;
     margin: 0;
@@ -87,7 +88,7 @@ input[type="submit"] {
     margin: .5rem;
 }
 
-pre#atmos {
+pre {
     position: absolute;
     margin: 1em;
     z-index: 1;
@@ -101,17 +102,35 @@ pre#atmos {
 
 input[step]{border-color:orange}
 
-polyline {fill: none;vector-effect: non-scaling-stroke;}
+polyline,path {fill: none; vector-effect:non-scaling-stroke;}
+polyline#pin{fill:red; stroke:none}
 
-polyline.trajectory{stroke:black}
-polyline#tdrop{stroke:gray}
-
-polyline#para{stroke:blue}
-polyline#drop{stroke:lime}
+polyline#trajectory{stroke:black}
+polyline#para{stroke:#aaa}
+polyline#drop{stroke:#bbb}
 polyline#aprx{stroke:green}
+/**/
 
-#weights>polyline{stroke:black;}
-#weights>.vm{stroke:green};
+#weights>polyline{stroke:rgba(0,0,0,.25)}
+
+#weights>polyline.vm{stroke:rgba(200,0,0,.25)}
+#weights>polyline.bc{stroke:rgba(0,200,0,.25)}
+
+#weights>polyline:hover{stroke-width:4px};
 
 
 pre#json {}
+
+input:disabled {
+    /* font-weight: bold; */
+    background: teal;
+    color: white;
+}
+
+#setups>span {
+    padding: .5em;
+    margin: .2em;
+    background: gainsboro;
+    border-radius: .5em;
+    cursor: pointer;
+}

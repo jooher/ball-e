@@ -110,6 +110,8 @@ function gaussianElimination(A, B) {
 
 // --- ШАГ 2: Локальная монотонная полировка ---
 function refineMonotonicity(baseK, xVals, yVals) {
+return baseK;
+
     let K = [...baseK];
     let lr = 0.01; 
     const epochs = 10000;

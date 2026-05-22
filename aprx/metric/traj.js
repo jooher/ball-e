@@ -5,7 +5,7 @@ import {xyz,len,add,sub} from '../xyz.js';
 const
 	g	= 9.81, // m/s2
 	
-	ERR	= .05, // cm
+	ERR	= .05, // 5 cm
 	ERROR = ERR*ERR,
 	MAXIT	= 10,
 	
@@ -31,7 +31,8 @@ tilt = ({
 	}
 },
 
-drop = (oY,sin,vv) => ({x,y}) => oY+x*(sin-x*vv) - y;
+para = (oY,sin,vv) => ({x}) => ({x, y:oY+x*(sin-x*vv)}),
+drop = (oY,sin,vv) => ({x,y}) => ({x, y:oY+x*(sin-x*vv) - y }) ;
 
 
 export default ({
@@ -114,5 +115,5 @@ export default ({
 	const sin = Math.sin(elevation),
 		vv = g/(2*bullet.vm*bullet.vm);
 		
-	return { trace, knob, error, drop: drop(sight.height,sin,vv) };
+	return { trace, knob, error, para:para(sight.height,sin,vv), drop:drop(sight.height,sin,vv) };
 }

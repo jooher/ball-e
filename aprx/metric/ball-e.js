@@ -53,6 +53,7 @@ inputs = {
 */
 },
 
+/*
 MOA = Math.PI/(180*60),
 click = 0.25*MOA,
 
@@ -63,14 +64,19 @@ rad2clicks = r => Math.round(r/click),
 clicks2rad = c => click*c,
 
 deg2radian = deg => deg && Math.PI/180 * parseFloat(deg),
+*/
+
 cent = one => one/100,
+
+num = id=> parseFloat(el(id).value),
 
 adjust = {
 	height : cent, // cm => m
 	los: deg2radian,
 	pc: cent, // percent
+	unit: parseFloat,
 	elevation: MOA2rad,
-	azimuth: MOA2rad
+	azimuth: MOA2rad,
 };
 
 
@@ -78,7 +84,7 @@ const
 
 f = el("shot"),
 zero = el("zero"),
-dist = el("dist"),
+pin = el("pin"),
 
 pos = (el,{x,y}) => el.setAttribute('transform',`translate(${x} ${y})`),
 
@@ -98,6 +104,7 @@ read = name => {
 
 scan = (f,o) => Object.fromEntries( Object.keys(o).map( key => [ key, typeof o[key] === 'object' ? scan(f,o[key]) : read(key) ] ) );
 
+
 window.prepareshot = (e,shot) =>{
 	if(!shot) shot = scan(f,inputs);
 	shot.bullet = new Bullet(shot.bullet);
@@ -108,28 +115,30 @@ window.prepareshot = (e,shot) =>{
 window.calculate = shot => {
 
 	const	traj = shot.traj = trajectory(shot),
-		unit = parseFloat(el("unit").value);
+		unit = num("unit")/num("factor");
 	
 	pos(zero,{x:shot.sight.zero,y:0});
-	pos(dist,{x:shot.sight.dist,y:0});
+	pos(pin,{x:shot.sight.dist,y:0});
 	
 	el("atmos").textContent = shot.atmos.data;
-	el("elevation").value = rad2MOA(traj.knob.elevation,unit);
-	el("azimuth").value = rad2MOA(traj.knob.azimuth,unit);
+	
+	if(traj.knob){
+		el("elevation").value = Math.round(unit*traj.knob.elevation),//rad2MOA(unit);
+		el("azimuth").value = Math.round(unit*traj.knob.azimuth);
+	}
 
 	return shot;
 };
 
-draggable(window.svg,{
+const tgt=f.querySelector("[name=dist]");
+
+draggable( el("oneshot"), el("pin"), {
 	drag: T => {
 		T.matrix.f = 0;
+		tgt.value = Math.round(T.matrix.e);
 	},
 	end: T => {
 		T.matrix.f = 0;
-		f.querySelector('[name=dist]').value = Math.round(T.matrix.e) * 10;
 		f.submit();
 	}
 });
-	
-	
-// el("calc").addEventListener('click', calculate);

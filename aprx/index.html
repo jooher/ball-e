@@ -2,7 +2,7 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Ball-E -- simple ballistic calculator</title>
+	<title>Ball-E -- simple ballistic traceulator</title>
 	<link rel=stylesheet href=styles.css />
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 </head>
@@ -10,65 +10,97 @@
 
 <body>
 
-	<form id=shot action="javascript:calculate(prepareshot())" novalidate >
-
-		<section name=sight>
-			<h2>Sight</h2>
-			<label title='Sight height above barrel'>Mount, cm<input type=number name=height value=5 step=1 /></label>
-			<label title='Vertical angle of line of sight'>LOS °<input type=number name=los value=0 step=0.01 /></label>
-			<label title='Zero distance'>Zero, m<input type=number name=zero value=100 min=100 max=6000 step=10 /></label>
-			<label title='Target distance'>Dist, m<input type=number name=dist value=300 min=100 max=6000 step=10 /></label>
-		</section>
-
-		<section name=bullet>
-			<h2>Bullet</h2>
-			<label title='Drag function'>Drag
-				<select name=G value="G7">
-					<option>G1</option>
-					<option>G2</option>
-					<option>G4</option>
-					<option>G5</option>
-					<option>G6</option>
-					<option selected>G7</option>
-					<option>G7a</option>
-					<option>G8</option>
-					<option>Gl</option>
-					<option>Gi</option>
+	<div class=app >
+		<form id=shot novalidate _action="javascript:void(0)" >
+		
+			<section>
+				<select id=setupselect >
+					<optgroup>
+						<option selected>default</option>
+					</optgroup>
+					<optgroup id=mysetups ></optgroup>
 				</select>
-			</label>
-			<label title='Ballistic coefficient for given drag function'>BC<input type=number name=bc value=0.25 min=0.010 max=1.00 step=0.001 /></label>
-			<label title='Muzzle velocity'>V, m/s<input type=number name=vm value=800 min=1000 max=6000 /></label>
-			<label title='Spin drift at 1 km'>D@1km, cm<input type=number name=drift value=62 step=1 /></label>
-		</section>
+				<button id=grab >+</button>
+			</section>
+			
+			<section name=sight>
+				<h2>Sight</h2>
+				<label title='Sight height above barrel'>Mount, cm<input type=number name=height value=5 step=1 /></label>
+				<label title='Vertical angle of line of sight'>LOS °<input type=number name=los min=-30 max=30 value=0 step=5 /></label>
+				<label title='Zero distance'>Zero, m<input type=number name=zero min=100 max=6000 value=100 step=10 /></label>
+				<label title='Target distance'>Dist, m<input type=number name=dist min=200 max=1600 value=800 step=100 /></label>
+			</section>
 
-		<section name=atmos>
-			<h2>Atmosphere</h2>
-			<label title='Altitude'>Alt, m<input type=number name=m value=0 min=0 max=30000 /></label>
-			<label title='Temperature'>T, °C<input type=number name=C value=15 min=0 max=100 step=1 /></label>
-			<label title='Humidity'>H, %<input type=number name=pc value=50 min=0 max=100 step=1 /></label>
-			<label title='Pressure'>P, mbar<input type=number name=mbar min=600 max=1200 step=1 /></label>
-		</section>
+			<section name=bullet>
+				<h2>Bullet</h2>
+				<label title='Drag function'>Drag
+					<select name=G value="G7">
+						<option>G1</option>
+						<option>G2</option>
+						<option>G4</option>
+						<option>G5</option>
+						<option>G6</option>
+						<option selected>G7</option>
+						<option>G7a</option>
+						<option>G8</option>
+						<option>Gl</option>
+						<option>Gi</option>
+					</select>
+				</label>
+				<label title='Ballistic coefficient for given drag function'>BC<input type=number name=bc min=0.15 max=.45 value=0.25 step=0.01 /></label>
+				<label title='Muzzle velocity'>V, m/s<input type=number name=vm min=600 max=1200 value=800 step=25 /></label>
+				<label title='Spin drift at 1 km'>D@1km, cm<input type=number name=drift value=60 step=5 /></label>
+			</section>
 
-		<input type=submit value=Calculate />
+			<section name=atmos>
+				<h2>Atmosphere</h2>
+				<label title='Altitude'>Alt, m<input type=number name=m min=0 max=6000 value=1000 step=250 /></label>
+				<label title='Temperature'>T, °C<input type=number name=C value=15 min=-20 max=40 step=10 /></label>
+				<label title='Humidity'>H, %<input type=number name=pc min=0 max=100 value=50 step=10 /></label>
+				<label title='Pressure'>P, mbar<input type=number name=mbar min=600 max=1200 step=100 /></label>
+			</section>
+			
+<!--			<input type=submit value=Calculate /> -->
+			
+			<section id=aim>
+				<label title='Scope click value'>Click<input type=number id=factor name=factor value=0.25 step=0.25 /></label>
+				<label title='Unit'>Unit
+					<select id=unit name=unit >
+						<option value=3438 >MOA</option>
+						<option value=1000 >mrad</option>
+					</select>
+				</label>
+				<label title='Vertical compensation'>Elevation<input type=number disabled id=elevation name=elevation /></label>
+				<label title='Horizontal compensation'>Azimuth<input type=number disabled id=azimuth name=azimuth /></label>
+			</section>
+			
+		</form>
 		
-		<section id=aim>
-			<label title='Vertical compensation'>Elevation<input type=number id=elevation name=elevation /></label>
-			<label title='Horizontal compensation'>Azimuth<input type=number id=azimuth name=azimuth /></label>
-			<label title='Scope click value'>Unit, × MOA<input type=number id=unit value=0.25 name=unit /></label>
-		</section>
+		<div	class=plot >
+			<pre id=atmos ></pre>
+			<svg	id=oneshot viewBox="-100 -4 1200 24" preserveAspectRatio=none >
+				<path d="M0,0 L1000,0 M500,-1 l0,2 M1000,-2 l0,4" _d=" M1500,-4 l0,8 M200,-10 l0,20"  fill=none stroke=gray />
+				<path id=zero d="M0,0 l0,1" fill=none stroke=blue />
+				<polyline id=pin class=draggable points="-10,0 0,1 10,0 0,-1 -10,0" />
+				<polyline id=trajectory />
+				<polyline id=drop />
+				<polyline id=para />
+			</svg>
+		</div>
 		
-	</form>
-
-	<div	class=plot >
-		<pre id=atmos ></pre>
-		<svg	id=svg viewBox="-10 -25 220 175" transform="scale(1,-1)" >
-			<path d="M0,0 L200,0 M50,-4 l0,8 M100,-10 l0,20 M150,-4 l0,8 M200,-10 l0,20"  stroke=gray fill=none />
-			<path id=zero d="M0,1 L0,10 M0,-1 L0,-10 M-1,0 L-10,0 M1,0 L10,0" fill=none stroke=blue />
-			<polyline id=dist class=draggable points="-6,0 0,10 6,0 0,-10 -6,0" stroke=none fill=blue />
-			<polyline id=trajectory stroke=white fill=none />
-		</svg>
 	</div>
 	
-</body>
+	<div class=app>
+	
+		<div class=weights >
+			<pre id=coefs ></pre>
+			<svg	id=weights viewBox="0 0 1 1" preserveAspectRatio=none >
+				<polyline points="0,0 1,0"/>
+			</svg>
+		</div>
 
-<script type=module src="metric/ball-e.js"></script>
+	</div>	
+
+	<script type=module src="matcher.js"></script>
+	
+</body>
