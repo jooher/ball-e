@@ -57,7 +57,7 @@ adjust = {
 
 const
 
-points = (el,trace ) => el.setAttribute("points",trace.map( ({x,y}) => `${x.toFixed(2)},${y.toFixed(2)}` ).join(" ")),
+points = (el,trace ) => el.setAttribute("points",trace.map( ({x,y}) => `${x.toFixed(4)},${y.toFixed(4)}` ).join(" ")),
 
 read = name => {
 	const input = f.querySelector(`[name=${name}]`);
@@ -141,18 +141,26 @@ row = e =>{
 		value	= parseFloat(param.value),
 		step	= parseFloat(param.step),
 		min	= value - DEGREE * step,//parseFloat(param.min),
-		max	= value + DEGREE * step,//parseFloat(param.max),
+		max	= value + DEGREE * step;//parseFloat(param.max),
+/*	
 		stat	= [];
 	
-	for(let x=min; x<=max; x+=step){
-		e.target.value = x;
+	for(let x=min, count=DEGREE+1+DEGREE; count--; x+=step){
+		param.value = x;
 		const {drop,trace } = calculate(prepareshot()).traj;
 		stat.push({x,y:drop(trace.at(-1)).y}); //test(prepareshot())
 	}
+	stats[key] = stat; //console.log()
+*/
+		
+	stats[key] = Array.from({length:DEGREE+1+DEGREE}, (_,i)=> {
+		const x = param.value = min+step*i,
+			{drop,trace } = calculate(prepareshot()).traj;
+		return {x, y:drop(trace.at(-1)).y}
+	});
 	param.value = value; // restore original value
 	
-	stats[key] = stat; //console.log()
-	plot(key,min,max,stat);	
+	plot(key,min,max,stats[key]);	
 };
 
 
@@ -214,6 +222,8 @@ ${K.join("\n")}
 `;
 	console.table(N);
 	console.table(K);
+	
+	el("approx")
 };
 
 

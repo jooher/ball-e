@@ -3,6 +3,10 @@ static const byte DLRF_single[] = { 0x55, 0x01, 0x02, 0x20, 0x00, 0x76 };
 static const byte DLRF_continuous[] = { 0x55, 0x02, 0x02, 0x20, 0x00, 0x75 };
 static const byte DLRF_selftest[] = { 0x55, 0x03, 0x02, 0x00, 0x00, 0x54 };
 
+#define LRF_period_ms 250
+
+void trace(const char * title, const byte buffer[], int length);
+
 class DLRF final {
 
   public:
@@ -46,7 +50,7 @@ class DLRF final {
   }
 
   void sendCommand(const byte* cmd, int length = 6) {
-      //trace("\nCommand ", cmd, length);
+      trace("\nCommand ", cmd, length);
       uart.write(cmd, length);
       last = millis();
   }
@@ -61,6 +65,7 @@ class DLRF final {
   bool read() {
 
       if (uart.available()) {
+         Serial.println("dlrf in");
           while (uart.available()) {
             
               byte c = uart.read();
@@ -84,7 +89,7 @@ class DLRF final {
           last = millis();
       }
       
-      else if (millis() - last > 500){
+      else if (millis() - last > LRF_period_ms){
         sendCommand(DLRF_single);
       }
       return false;
@@ -99,7 +104,7 @@ class DLRF final {
 
   bool parse() {
 
-    //trace("DLRF: ",response,16);
+    trace("DLRF: ",response,16);
 
     if (xorcheck()){
       Serial.printf(" !! XOR=%X", xorcheck() );

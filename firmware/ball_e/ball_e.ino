@@ -1,4 +1,4 @@
-#define VERSION "3"
+#define VERSION "4"
 #define VER_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.version"
 #define BIN_URL "https://raw.githubusercontent.com/jooher/ball-e/main/firmware/c3/ball_e.ino.bin"
 
@@ -81,9 +81,9 @@ void trace(const char * title, const byte buffer[], int length) {
   sayf("%s (%d bytes):", title, length);
   for (int i = 0; i < length; i++)
     sayf(" %02X", buffer[i]);
-  say(" // ");
+  Serial.print(" // ");
   for (int i = 0; i < length; i++)
-    say(buffer[i] > 0x1F ? (const char)buffer[i] : '*');
+    Serial.print(buffer[i] > 0x1F ? (const char)buffer[i] : '*');
   Serial.println();
 }
 
@@ -109,7 +109,7 @@ bool prepare(){
   ok_oled = oled.begin(SSD1306_SWITCHCAPVCC, 0x3C, false, false);
   
   oled.setTextColor(WHITE);
-  oled.setRotation(3);
+  oled.setRotation(1);
   oled.clearDisplay();
   oled.setCursor(0,0);
   oled.printf("V:%s\n\n",VERSION);
@@ -185,6 +185,8 @@ union broadcast_t{
 broadcast_t broadcast;
   //data_t():header(0xff),status(0){}
 
+bool updateChecked = false;
+
 void setup(){
 
   Serial.begin(9600);
@@ -212,7 +214,7 @@ void setup(){
     say("Button pressed => checking for updates");
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-  }
+  } else updateChecked = true;
 
   oled.display();
   
@@ -240,8 +242,6 @@ int startTime = millis();
 
 
 
-bool updateChecked = false;
-
 int sleepState = 2, sleepDelay = 0, lastReleased = millis();
 
 int c=0;
@@ -267,6 +267,7 @@ void loop() {
     }
 
     if(ok_lrf){
+      lrf.read();
       data.range = lrf.data.distance_dm;
       d = 0.1f*data.range;
     } //else oled.println("lrf?\n");
@@ -280,7 +281,7 @@ void loop() {
 
       case 0: // no sleep, actively working
         say("button off");
-        sayf("U: %d; R: %d\n", calc.U, calc.R);
+       // sayf("U: %d; R: %d\n", calc.U, calc.R);
         sleepState=1; // hold distance; accel keeps working
         lastReleased = millis();
         if(ok_lrf)lrf.stop();
